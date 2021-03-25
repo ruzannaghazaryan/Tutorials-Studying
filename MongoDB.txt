@@ -1,0 +1,17 @@
+> Mongo DB _ NoSQL Document Database
+
+
+> Document _ A way to organize and store data as a set of field-value pairs
+
+				{
+				 'field1': 'value1',
+				 'field2': 'value2',
+				 'name': 'zuz',
+				 'age': 26
+				 }
+				 
+				 
+> Collection _ An organized store of documents, usually with common fields between documents
+
+
+> Database _ multiple collections 
