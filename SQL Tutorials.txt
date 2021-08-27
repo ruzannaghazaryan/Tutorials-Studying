@@ -7,8 +7,8 @@
 >> NoSQL systems don't understand SQL,,, they have their own query language
 
 >> RDBMS examples -->  . MySQL
-		       . SQL Server
-		       . Oracle ... 
+		               . SQL Server
+		               . Oracle ... 
 
 >> database <-- tables
 

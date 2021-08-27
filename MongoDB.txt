@@ -1,17 +1,187 @@
-> Mongo DB _ NoSQL Document Database
+>> Mongo DB _ NoSQL Document Database
 
-
-> Document _ A way to organize and store data as a set of field-value pairs
+>> Document _ A way to organize and store data as a set of field-value pairs
 
 				{
 				 'field1': 'value1',
 				 'field2': 'value2',
 				 'name': 'zuz',
 				 'age': 26
-				 }
+				}			 
 				 
-				 
-> Collection _ An organized store of documents, usually with common fields between documents
+>> Collection _ An organized store of documents, usually with common fields between documents
+
+>> Database _ multiple collections 
+
+>> mongodb://admin:hello8008there@144.217.38.21:27017
+___________________________________________________________________________________________________________________________________________________________________
+
+>> To display the current database
+   - db
+   
+     -- the default database is test
+   
+>> To switch databases, type <use db>
+   - use lessTest;
+   
+     -- To create a new database, issue the use <db> command with the database that you would like to create.
+
+>> To list the databases available to the user
+   - show dbs;
+   - show databases;
+   
+>> For example, the following commands create both the database myNewDatabase and the collection myCollection using the insertOne() operation:
+   - use myNewDatabase;
+   - db.myCollection.insertOne({x: 1});
+   
+     -- If a collection does not exist, MongoDB creates the collection when you first store data for that collection.
+
+>> To get all data of a collection
+   - db.myCollection.find()
+   - db.myCollection.find({})
+   - db.getCollection("myCollection").find()
+   - db.getCollection("myCollection").find({})
+   
+>> To clear the mongosh Console
+   - cls
+   - press Ctrl + L
+   - console.clear()
+
+>> To terminate a running command or query in mongosh, press Ctrl + C.
+   - Ctrl + C
+   
+     -- Ctrl + C terminates the process in the shell, but does not terminate the process on the MongoDB server. 
+	 -- This behavior differs from the db.killOp() method, which terminates commands on the server.
+	 
+___________________________________________________________________________________________________________________________________________________________________
+
+>> To insert a single document
+   - db.collection.insertOne()
+   
+     -- db.movies.insertOne(
+	                    { 
+						  title: "Gladiator",
+						  genres: ["Drama", "History"],
+						  runtime: 121,
+						  rated: "R",
+						  directors: [ "Yorgos Lanthimos", 123 ],
+						  type: "movie"
+						}
+						   )
+					
+>> To insert multiple documents
+   - db.collection.insertMany()
+     
+	 -- To insert Multiple Documents to the collection pass an array of documents to the method
+   
+     -- db.movies.insertMany([
+	                    {
+						  title: "Gladiator",
+						  genres: ["Drama", "History"],
+						  runtime: 121,
+						  rated: "R",
+						  directors: [ "Yorgos Lanthimos", 123 ],
+						  type: "movie"
+						},
+						{  
+						  title: "PrinceArthur",
+						  genres: ["Drama", "History"],
+						  runtime: 234
+						  rated: "A,
+						  directors: [ "Yorgos Lanthimos", 123 ],
+						  type: "movie"
+						}
+						    )]
+							
+___________________________________________________________________________________________________________________________________________________________________
+
+>> To read all documents in the collection:
+   - use databaseName;
+   - db.movies.find()                     <=>      SELECT * FROM movies
+   - db.getCollection("movies").find()
+
+>> To retrieve the inserted document
+   - db.movies.find({title: "Gladiator"})
+   - db.getCollection("movies").find({title: "Gladiator"})   <=> SELECT * FROM movies WHERE title = "Gladiator"
+___________________________________________________________________________________________________________________________________________________________________
+
+>> Embedded/Nested Documnets
+
+   - db.inventory.insertMany([
+                  {item: "journal", qty: 25, size: {h: 14, w: 21, l: 15, uom: "cm"}, status: "A"},
+				  {item: "notebook", qty: 50, size: { h: 8.5, w: 11, uom: "in" }, status: "A"},
+				  {item: "paper", qty: 100, size: { h: 8.5, w: 11, uom: "in" }, status: "D"},
+				  {item: "planner", qty: 75, size: { h: 22.85, w: 30, uom: "cm" }, status: "D"},
+				  {item: "postcard", qty: 45, size: { h: 10, w: 15.25, uom: "cm" }, status: "A" }
+				             ]) 
+							 
+>> Equality matches on the whole embedded document require an exact match of the specified <value> document, including the field order.
+   - db.inventory.find( {size: {h: 14, w: 21, uom: "cm"}} )
+     -- No results (as in the first document there is also a field <l: 15>)
+   
+   - db.inventory.find( {size: {h: 14, w: 21, uom: "cm", l: 15}} )
+     -- No results (not the same field order as in the document)
+	 
+___________________________________________________________________________________________________________________________________________________________________
+
+>> Query on Nested Field
+   -- To specify a query condition on fields in an embedded/nested document, use dot notation ("field.nestedField")
+   -- !!! When querying using dot notation, the field and nested field must be inside quotation marks. 
+   
+   - db.getCollection("inventory").find({"size.uom": "in"})
+   - db.getCollection("inventory").find({"size.h": {$lt: 15}})
+   
+___________________________________________________________________________________________________________________________________________________________________
+
+>> Query on Nested Field & Specify AND Condition
+   - db.getCollection("inventory").find({"size.h": {$lt: 15}, "size.uom": "in", status: "D"})
+
+___________________________________________________________________________________________________________________________________________________________________
+
+>> Operators
+
+   { <field1>: { <operator1>: <value1> }, ... }
+___________________________________________________________________________________________________________________________________________________________________
+
+>> $in operator
+>> $in operator selects the documents where the value of a field equals any value in the specified array.
+   
+   -- { field: { $in: [<value1>, <value2>, ... <valueN> ] } }
+   
+   - db.getCollection("Locations").find(
+										 {
+										  name: {$in: ["Airport", "Agricultural Site"]}
+										 }
+									    )
+										
+	<=> SELECT * 
+	    FROM Locations
+		WHERE name in ("Airport", "Agricultural Site")
+									   
+___________________________________________________________________________________________________________________________________________________________________
+
+>> AND Logical Operator
+   - db.movies.find({countries: "Mexico", "imdb.rating": {$gte: 7}})
+   
+     -- so that the query selects the documents in the collection that match all the conditions.
+   
+___________________________________________________________________________________________________________________________________________________________________
+
+>> OR Logical Operator
+   -- To return movies from the collection which were released in 2010 and either won at least 5 awards or have a genre of Drama:
+
+   - db.movies.find({
+					year: 2010,
+                    $or: [{"awards.wins": {$gte: 7}}, {genres: "Drama"}]
+					})
+
+___________________________________________________________________________________________________________________________________________________________________
 
 
-> Database _ multiple collections 
+
+
+
+
+
+
+
