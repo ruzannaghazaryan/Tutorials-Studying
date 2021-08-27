@@ -1,3 +1,5 @@
+>> mongodb://admin:hello8008there@144.217.38.21:27017
+
 >> Mongo DB _ NoSQL Document Database
 
 >> Document _ A way to organize and store data as a set of field-value pairs
@@ -13,7 +15,15 @@
 
 >> Database _ multiple collections 
 
->> mongodb://admin:hello8008there@144.217.38.21:27017
+>> The documents in a single collection do not need to have the same set of fields and the data type for a field can differ across documents within a collection.
+
+>> To change the structure of the documents in a collection, such as add new fields, remove existing fields, or change the field values to a new type, 
+   update the documents to the new structure.
+   
+>> Collections are assigned an immutable UUID. The collection UUID remains the same across all members of a replica set and shards in a sharded cluster.
+   To retrieve the UUID for a collection
+   - db.getCollectionInfos()
+
 ___________________________________________________________________________________________________________________________________________________________________
 
 >> To display the current database
@@ -26,15 +36,28 @@ ________________________________________________________________________________
    
      -- To create a new database, issue the use <db> command with the database that you would like to create.
 
+___________________________________________________________________________________________________________________________________________________________________
+
 >> To list the databases available to the user
    - show dbs;
    - show databases;
    
+___________________________________________________________________________________________________________________________________________________________________
+
 >> For example, the following commands create both the database myNewDatabase and the collection myCollection using the insertOne() operation:
    - use myNewDatabase;
    - db.myCollection.insertOne({x: 1});
+   - db.myNewCollection3.createIndex({y: 1})
    
      -- If a collection does not exist, MongoDB creates the collection when you first store data for that collection.
+	 -- Both the insertOne() and the createIndex() operations create their respective collection if they do not already exist.
+
+>> Explicit Creation
+   - db.createCollection("newCollection")
+   
+     -- db.createCollection() method explicitly creates a collection with various options, such as setting the maximum size or the documentation validation rules.
+	 
+___________________________________________________________________________________________________________________________________________________________________
 
 >> To get all data of a collection
    - db.myCollection.find()
@@ -105,7 +128,7 @@ ________________________________________________________________________________
    - db.getCollection("movies").find({title: "Gladiator"})   <=> SELECT * FROM movies WHERE title = "Gladiator"
 ___________________________________________________________________________________________________________________________________________________________________
 
->> Embedded/Nested Documnets
+>> Embedded/Nested Documents
 
    - db.inventory.insertMany([
                   {item: "journal", qty: 25, size: {h: 14, w: 21, l: 15, uom: "cm"}, status: "A"},
@@ -177,9 +200,55 @@ ________________________________________________________________________________
 
 ___________________________________________________________________________________________________________________________________________________________________
 
+>> To format the results, append the .pretty() to the find operation:
+   - db.getCollection("inventory").find().pretty()
+   
+___________________________________________________________________________________________________________________________________________________________________
+
+   - db.inventory.insertMany([
+							{ item: "journal", qty: 25, status: "A", size: { h: 14, w: 21, uom: "cm" }, tags: [ "blank", "red" ] },
+							{ item: "notebook", qty: 50, status: "A", size: { h: 8.5, w: 11, uom: "in" }, tags: [ "red", "blank" ] },
+							{ item: "paper", qty: 10, status: "D", size: { h: 8.5, w: 11, uom: "in" }, tags: [ "red", "blank", "plain" ] },
+							{ item: "planner", qty: 0, status: "D", size: { h: 22.85, w: 30, uom: "cm" }, tags: [ "blank", "red" ] },
+							{ item: "postcard", qty: 45, status: "A", size: { h: 10, w: 15.25, uom: "cm" }, tags: [ "blue" ] }
+							])
+							
+>> To return documents where the tags array contains "red" as one of its elements:
+   - db.getCollection("inventory").find({tags: "red"})
+   
+     -- The result will be the first 4 documents.
+	 -- If the tags field is a string instead of an array, then the query is just an equality match.
+
+___________________________________________________________________________________________________________________________________________________________________	 
+
+>> To return documents where the tags field matches the specified array exactly, including the order:
+   - db.getCollection("inventory").find({tags: ["blank", "red"]})
+
+___________________________________________________________________________________________________________________________________________________________________
+
+>> Specify Fields to Return (Projection)
+
+   db.collection.find(<query document>, <projection document>)
+    
+   - In the projection document, specify:
+     -- <field>: 1       to include a field in the returned documents
+     -- <field>: 0       to exclude a field in the returned documents
 
 
+>> To return the _id, item, and the status fields from all documents in the inventory collection:
+   - db.getCollection("inventory").find({}, {item: 1, status: 1})     
+     <=> SELECT _id, item, status FROM inventory
+	 
+	 !!! You do not have to specify the _id field to return the field. It returns by default.
+	 
+>> To return only the item, and the status fields in the matching documents:
+   - db.getCollection("inventory").find({}, {_id: 0, status: 1, item: 1})
+   
+___________________________________________________________________________________________________________________________________________________________________
 
+>> Views (???)
+
+___________________________________________________________________________________________________________________________________________________________________
 
 
 
