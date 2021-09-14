@@ -205,6 +205,9 @@ ________________________________________________________________________________
    
 ___________________________________________________________________________________________________________________________________________________________________
 
+>> Query an Array
+
+
    - db.inventory.insertMany([
 							{ item: "journal", qty: 25, status: "A", size: { h: 14, w: 21, uom: "cm" }, tags: [ "blank", "red" ] },
 							{ item: "notebook", qty: 50, status: "A", size: { h: 8.5, w: 11, uom: "in" }, tags: [ "red", "blank" ] },
@@ -219,11 +222,81 @@ ________________________________________________________________________________
      -- The result will be the first 4 documents.
 	 -- If the tags field is a string instead of an array, then the query is just an equality match.
 
-___________________________________________________________________________________________________________________________________________________________________	 
+	 
 
 >> To return documents where the tags field matches the specified array exactly, including the order:
    - db.getCollection("inventory").find({tags: ["blank", "red"]})
 
+
+
+>> $all operator
+   - If, instead, you wish to find an array that contains both the elements "red" and "blank", without regard to order or other elements in the array, use the $all operator:
+ 
+     -- db.getCollection("inventory").find({tags: {$all: ["red", "blank"]}})
+
+
+>>   db.inventory.insertMany([
+							{ item: "journal", qty: 25, tags: ["blank", "red"], dim_cm: [ 14, 21 ] },
+							{ item: "notebook", qty: 50, tags: ["red", "blank"], dim_cm: [ 14, 21 ] },
+							{ item: "paper", qty: 100, tags: ["red", "blank", "plain"], dim_cm: [ 14, 21 ] },
+							{ item: "planner", qty: 75, tags: ["blank", "red"], dim_cm: [ 22.85, 30 ] },
+							{ item: "postcard", qty: 45, tags: ["blue"], dim_cm: [ 10, 15.25 ] }
+							]);
+							
+	 
+   - To specify conditions on the elements in the array field, use query operators in the query filter document:
+	 { <array field>: { <operator1>: <value1>, ... } }
+   - For example, the following operation queries for all documents where the array dim_cm contains at least one element whose value is greater than 25.
+	    
+	 -- db.getCollection("inventory").find({"dim_cm": {$gte: 25}})	
+	 
+___________________________________________________________________________________________________________________________________________________________________
+
+>> Specify Multiple Conditions for Array Elements
+   - The following example queries for documents where the dim_cm array contains elements that in some combination satisfy the query conditions; 
+     e.g., one element can satisfy the greater than 15 condition AND another element can satisfy the less than 20 condition, OR a single element can satisfy both:
+	 
+	 -- db.getCollection("inventory").find({dim_cm: {$lt: 20, $gt: 15}})
+	    [
+			{ dim_cm: [ 14, 21 ] },
+			{ dim_cm: [ 14, 21 ] },
+			{ dim_cm: [ 14, 21 ] },
+			{ dim_cm: [ 10, 15.25 ] }
+		]
+     -- db.getCollection("inventory").find({"dim_cm": {$lt: 11, $gte: 30}})
+	    No result as
+		- dim_cm: [ 10, 15.25 ]       10 < 11   BUT   15.25 IS NOT $gte 30
+        - dim_cm: [ 22.85, 30 ]		  30 >= 30  BUT   the other condition is not satisfied for the other element
+
+___________________________________________________________________________________________________________________________________________________________________
+
+>> Query for an Array Element that Meets Multiple Criteria
+   - $elemMatch operator
+   - Use $elemMatch operator to specify multiple criteria on the elements of an array such that at least one array element satisfies all the specified criteria.
+   
+   - where the dim_cm array contains at least one element that is both greater than ($gt) 22 and less than ($lt) 30:
+     -- db.getCollection("inventory").find({dim_cm: {$elemMatch: {$gt: 22, $lt: 30}}})
+	 
+___________________________________________________________________________________________________________________________________________________________________
+
+>> Query for an Element by the Array Index Position
+   
+   - Using dot notation, you can specify query conditions for an element at a particular index or position of the array. 
+     The array uses zero-based indexing.
+
+   
+   - The following example queries for all documents where the second element in the array dim_cm is greater than 25:    
+	 -- db.getCollection("inventory").find({"dim_cm.1": {$gte: 29}})
+	 
+___________________________________________________________________________________________________________________________________________________________________
+
+>> Query an Array by Array Length
+   - $size operator
+   
+   
+   - Use the $size operator to query for arrays by number of elements. For example, the following selects documents where the array tags has 3 elements.
+     -- db.getCollection("inventory").find({"tags": {$size: 3}})
+	 
 ___________________________________________________________________________________________________________________________________________________________________
 
 >> Specify Fields to Return (Projection)
