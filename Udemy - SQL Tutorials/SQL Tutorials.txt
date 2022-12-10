@@ -1,0 +1,3541 @@
+
+>> https://www.enterprisedb.com/training/postgres-certification
+
+>> https://www.hackerrank.com/domains/sql
+
+>> https://leetcode.com/
+
+>> https://sqlzoo.net/wiki/SQL_Tutorial
+
+>> https://www.tutorialspoint.com/postgresql/index.htm
+
+>> https://www.w3resource.com/postgresql-exercises/
+
+>> https://www.techonthenet.com/postgresql/index.php
+
+>> https://www.w3schools.com/sql/func_mysql_mod.asp
+
+>> https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-group-by/
+
+___________________________________________________________________________________________________________________________________________
+
+
+>> PostgreSQL Documentation	https://www.postgresql.org/docs/
+
+
+___________________________________________________________________________________________________________________________________________
+
+
+>> Database Management System (DBMS)
+
+>> Relational Databases and Non-Relational Databases = NoSQL
+
+>> SQL = Structured Query Language 
+
+>> NoSQL systems don't understand SQL,,, they have their own query language
+
+>> RDBMS examples -->  . MySQL
+		               . SQL Server
+		               . Oracle ... 
+
+>> database <-- tables
+
+>> every row in table = record
+
+>> In PostgreSQL double quotes are used to indicate identifiers within the database, which are objects like tables, column names, and roles. 
+   In contrast, single quotes are used to indicate string literals.
+
+_________________________________________________________________________________________________________________________________________
+
+
+>> PostgreSQL - SQL Engine that stores data and reads queries and returns information.
+
+>> PgAdmin - Graphical User Interface for connecting with PostgreSQL.
+
+_________________________________________________________________________________________________________________________________________
+
+
+>> To select database for which we want to write a query
+   - USE less_db;
+
+
+>> To see which database is currently selected
+   - SELECT database();
+   
+_________________________________________________________________________________________________________________________________________
+
+
+>> To describe a table
+	- SELECT *
+	  FROM information_schema.columns
+	  WHERE table_name = 'YourTableName';
+
+
+_________________________________________________________________________________________________________________________________________
+
+
+>> To select all data from the `customers` table
+   - SELECT * FROM customers;
+
+_________________________________________________________________________________________________________________________________________
+
+
+>> - SELECT * FROM customers 
+     WHERE customer_id = 1;
+	 
+_________________________________________________________________________________________________________________________________________
+
+
+>> To sort the data specifying the columns that we wanna sort the result on (in ascending way)
+   - SELECT * FROM customers 
+     ORDER BY firstName; 
+
+     -- if specified column type is varchar -> sorting is done in alphabetical way
+
+
+>> To sort in descending way
+   - SELECT * FROM customers 
+     ORDER BY firstName DESC;	
+	 
+	 
+>> you can also ORDER BY multiple columns 
+   (this makes sense when one column has duplicate entries)	 
+   
+   
+>> - SELECT store_id, first_name, last_name FROM customer
+     ORDER BY store_id DESC, first_name ASC
+
+
+_________________________________________________________________________________________________________________________________________
+
+
+>> The LIMIT command is useful for not wanting to return every single row in a table, 
+   but only view the top few rows to get an idea of the table layout.
+
+>> LIMIT is the last command to be executed.
+
+
+-- 5 most recent purchases
+	- SELECT * FROM payment
+	  WHERE amount != 0 
+	  ORDER BY payment_date DESC
+	  LIMIT 5;
+
+
+_________________________________________________________________________________________________________________________________________
+
+
+- SELECT title, length FROM film
+  ORDER BY length ASC
+  LIMIT 5;
+  
+  -- in pgadmin length is also highlighted as it is SQL keyword 
+     whether it's a keyword or column name can be decided by capitalization  
+  
+
+_________________________________________________________________________________________________________________________________________
+
+
+>> Arithmetic expressions can be used in SELECT clause (+ - * / %)     % - remainder
+   - SELECT 
+		first_name,
+		last_name,
+		Quantity,
+		(Quantity + 10) * 100
+     FROM customers;
+
+     -- in this case the name of the column is (Quantity + 10) * 100
+
+>> To change the column name use AS keyword (the 4th column will be called discount_factor)
+   - SELECT
+		first_name, 
+		last_name,
+		Quantity,
+		(Quantity + 10) * 100 AS discount_factor
+     FROM customers;
+
+>> if you have a space in the column name, you need to surround them with quotes ('' or "")
+   - SELECT
+		first_name, 
+		last_name,
+		Quantity,
+		(Quantity + 10) * 100 AS "discount factor"
+     FROM customers;
+	 
+	 
+_________________________________________________________________________________________________________________________________________
+
+
+>> To get the unique list of the column values use SELECT DISTINCT clause
+   - SELECT DISTINCT states FROM customers;
+   
+   
+_________________________________________________________________________________________________________________________________________
+
+
+>> WHERE clause and comparison operators
+	>
+	>=
+	<
+	<=
+	=
+	!= or <> (not equal)
+	
+	
+_________________________________________________________________________________________________________________________________________
+
+
+
+>> when dealing with strings (textual data) and dates, use quotes ''
+   - SELECT * FROM customers WHERE customerName = 'Avigilon';
+   - SELECT * FROM customers WHERE birthdate > '1990-01-01';
+
+
+_________________________________________________________________________________________________________________________________________
+
+
+>> To return the number of rows in the table 
+	(In fact, it should be the same regardless of the column)
+	
+	- SELECT COUNT(column_name) FROM table;
+	- SELECT COUNT(*) FROM table;
+	
+	
+	
+	
+>> How many unique names are there in the table?
+	- SELECT COUNT(DISTINCT name) FROM table;
+
+
+
+
+>> COUNT with multiple columns
+   -- COUNT(DISTINCT col1, col2) : distinct (col1, col2) values combinations
+   
+   - SELECT DISTINCT customer_id, amount FROM payment
+     ORDER BY customer_id;
+	 
+		-- The distinct is based on unique combination of specified columns, so here (1, 1.99) and (1, 3.99) are two distinct combinations.
+   
+_________________________________________________________________________________________________________________________________________
+
+
+
+>> The AND, OR, NOT logical operators
+   
+        -- AND -> all conditions should be True
+		-- OR  -> at least one of the conditions is True
+
+   - SELECT *
+     FROM drivers
+     WHERE hdate > '2019-01-01' AND rate > 88;
+
+_________________________________________________________________________________________________________________________________________
+
+
+>> The priority of AND, OR operators
+
+        -- AND is always evaluated first (as * /)
+        -- use parentheses () to change the default order
+
+   - SELECT *
+     FROM customers
+     WHERE birthDate > '2019-01-01' OR points > 1000 AND state = 'VA';
+        
+	-- at first it checks conditions before and after AND, and only then goes to OR operator
+        
+	-- we can also write the above code in this way
+   - SELECT * 
+     FROM customers
+     WHERE (birth_date > '2019-01-01') OR
+           (points > 1000 AND state = 'VA');
+
+        -- These are customers that are born either (after 2019-01-01) OR (have more than a 1000 points AND live in VA)
+
+
+__________________________________________________________________________________________________________________________________________
+
+
+>> To negate (отрицать) the written condition use NOT operator
+   - SELECT *
+     FROM customers
+     WHERE NOT (birth_date > '2019-01-01' OR points > 1000);
+
+        -- These will be customers that are born before 2019-01-01 and have less than 1000 points
+        -- To simplify and understand this
+              -- apply NOT operator to the first condition (negate it) 
+			-- NOT (birth_date > '2019-01-01') <=> (birth_date <= '2019-01-01')
+              -- apply NOT operator to OR to negate the OR
+			-- NOT OR <=> AND
+	      -- apply NOT operator to the second condition
+			-- NOT (points > 1000) <=> (points <= 1000)
+	-- So we can write the above code in the following way as they are equivalent
+   - SELECT *
+     FROM customers 
+     WHERE birth_date <= '2019-01-01' AND points <= 1000;
+
+
+__________________________________________________________________________________________________________________________________________
+
+
+>> we can also use Arithmetic Expressions in the WHERE clause, ex:
+   - SELECT *
+     FROM order_items
+     WHERE order_id = 6 AND unit_price * Quantity > 30;
+
+
+__________________________________________________________________________________________________________________________________________
+
+
+>> IN operator
+>> use the IN operator when you want to compare an attribute to a list of values
+   - SELECT *
+     FROM customers 
+     WHERE state = 'VA' OR state = 'FL' OR state = 'GA';
+
+         -- but there is a shorter and cleaner way to get the same result
+   - SELECT * 
+     FROM customers
+     WHERE state IN ('VA', 'FL', 'GA');
+
+         -- to get the customers outside of the mentioned states
+   - SELECT *
+     FROM customers
+     WHERE state NOT IN ('VA', 'FL', 'GA');
+
+
+_________________________________________________________________________________________________________________________________________
+
+
+>> BETWEEN operator
+
+	-- value BETWEEN low and high
+	<=> value >= low AND value <= high
+	
+	
+	
+>> whenever you are comparing an attribute with a range of values, you can use the BETWEEN operator
+   - SELECT *
+     FROM customers
+     WHERE id >= 35 AND id <= 40;
+ 
+        -- the equivalent of this code will be (we can rewrite this expression)
+   - SELECT * 
+     FROM customers 
+     WHERE id BETWEEN 35 AND 40;
+
+
+        -- ex: return customers born between 1/1/1990 and 1/1/2000
+        -- we can use the BETWEEN operator for date values as well 
+   - SELECT *
+     FROM customers
+     WHERE birth_date BETWEEN '1990-01-01' AND '2020-01-01';
+
+
+
+>> You can also combine BETWEEN with the NOT logical operator:
+   
+   -- value NOT BETWEEN low AND high
+   <=> value < low OR value > high
+
+
+
+-- the number of payments that were not between 8 and 9 $s.
+	- SELECT COUNT(*) FROM payment
+	  WHERE amount NOT BETWEEN 8 AND 9;
+
+_________________________________________________________________________________________________________________________________________
+
+
+>> LIKE operator (ILIKE operator)
+
+
+>> LIKE is a string comparison, it only works with strings.
+>> retrieve rows that match a specific string pattern
+>> % to represent any number of characters
+   _ to represent a single character
+
+        -- to get the customers whose last_name starts with 'b'
+   - SELECT *
+     FROM customers 
+     WHERE last_name LIKE 'b%'
+
+        -- use the % sign to indicate any number of characters with the mentioned pattern 
+
+        -- to get the customers who have a 'b' somewhere in their last_name (in the beginning, in the middle or at the end)
+   - SELECT *
+     FROM customers
+     WHERE last_name LIKE '%b%'
+
+        -- to get the customers whose last_name ends with 'y'
+   - SELECT *
+     FROM customers
+     WHERE last_name LIKE '%y'
+
+        -- _ use underscore to mention concrete number of letters
+		-- get customers whose last_name starts with 'b', after 'b' have exactly 4 characters and ends with 'y'
+		
+   - SELECT *
+     FROM customers
+	 WHERE last_name LIKE 'b____y'
+	 
+	 
+		-- get the customers whose addresses contain TRAIL or AVENUE
+   - SELECT *
+     FROM customers
+	 WHERE address LIKE '%trail%' OR
+	       address LIKE '%avenue%'
+		   
+		  
+		-- get the customers whose phone numbers end with 9
+   - SELECT *
+     FROM customers
+	 WHERE phone_number LIKE '%9'
+	 
+	 
+	    -- get the customers whose phone numbers don't end with 9
+   - SELECT * 
+     FROM customers
+	 WHERE phone_number NOT LIKE '%9'
+	 
+	 
+	 
+>> LIKE is case-sensitive, we can use ILIKE which is case-insensitive. 
+   (ILIKE for case insensitive search is Postgre specific)
+
+
+>> We can also combine pattern matching operators to create more complex patterns.
+	- WHERE name LIKE '_her%'
+	
+		-- Cheryl
+		-- Theresa
+		-- Sherri
+		
+		
+		
+>> You can also add in NOT operator
+	- SELECT * FROM customer
+	  WHERE first_name NOT LIKE '_her%';
+	  
+	- SELECT * FROM customer
+	  WHERE first_name LIKE 'A%' AND last_name NOT LIKE 'B%'
+	  ORDER BY last_name;
+		
+
+
+	- SELECT COUNT(*) FROM customer
+	  WHERE first_name LIKE 'J%' AND last_name LIKE 'S%'
+	  
+	  
+	
+	- SELECT DISTINCT city FROM city
+	  WHERE city LIKE 'N%' OR city LIKE 'W%';
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+	  
+	  
+
+-- the standard approach to filter values based on a column from another table
+	- SELECT * FROM customer
+	  WHERE customer_id IN (SELECT customer_id FROM payment);
+
+_____________________________________________________________________________________________________________________________________________
+
+
+
+>> REGEXP operator (Regular Expression)
+
+   - SELECT *
+     FROM customers
+	 WHERE last_name LIKE '%field%' 
+								('field' can be in the beginning, in the middle or at the end)
+	 
+	    -- we can rewrite the above code 
+   - SELECT *
+     FROM customers
+	 WHERE last_name REGEXP 'field'
+	 
+	 
+	    -- ^ (this sign is called carrot) to indicate the beginning of a string
+		-- our last_name must start with 'field'
+   - SELECT *
+     FROM customers 
+	 WHERE last_name REGEXP '^field'
+	 
+	 
+	    -- $ to indicate the end of a string
+		-- the last_name must end with 'field'
+   - SELECT *
+     FROM customers
+     WHERE last_name REGEXP 'field$'	 
+	 
+	 
+	    -- get customers who have the word 'field' or 'mac' or 'rose' in their last_name
+   - SELECT *
+     FROM customers 
+	 WHERE last_name REGEXP 'field|mac|rose'
+	 
+	 
+	    -- get customers whose last_name must either start with 'field' or have the word 'mac' in it or the word 'rose' in it
+   - SELECT *
+     FROM customers 
+	 WHERE last_name REGEXP '^field|mac|rose'
+	 
+	 
+	    -- get customers who have an 'e' in their last_name
+   - SELECT *
+     FROM customers
+	 WHERE last_name REGEXP 'e'
+	 
+	 
+	    -- before the letter 'e' must either have 'g', 'i', 'm'
+		-- matches any customers who have 'ge' or 'ie' or 'me' in their last_name 
+   - SELECT *
+     FROM customers
+	 WHERE last_name REGEXP '[gim]e'
+	 
+	 
+	 
+	    -- any customers who have 'e' followed by 'f' or 'm' or 'q'
+   - SELECT * 
+     FROM customers 
+	 WHERE last_name REGEXP 'e[fmq]'
+	 
+	 
+	 
+	    -- before 'e' we can have any characters from 'a' to 'h' (a,b,c,d,e,f,g)
+   - SELECT *
+     FROM customers
+	 WHERE last_name REGEXP '[a-h]e'
+	 
+	 
+	    -- ^ the beginning
+		-- $ the end
+		-- | logical OR    (| pipe or vertical bar)
+		-- [abcd]
+		-- [a-f]
+		
+		
+		-- get the customers whose first names are ELKA or AMBUR 
+   - SELECT *
+     FROM customers
+	 WHERE first_name REGEXP 'elka|ambur'
+	 
+	 
+	    -- get the customers whose last names end with EY or ON
+   - SELECT *
+     FROM customers
+	 WHERE last_name REGEXP 'EY$|ON$'
+	 
+	 
+	    -- get the customers whose last names contain B followed by R or U
+   - SELECT *
+     FROM customers 
+	 WHERE last_name REGEXP 'b[ru]'
+	 
+	 OR
+	 
+   - SELECT * 
+     FROM customers
+	 WHERE last_name REGEXP 'br|bu'
+	 
+	 
+	 
+_________________________________________________________________________________________________________________________________________
+
+	 
+>> The IS NULL operator
+>> NULL <=> the absence of a value
+
+        -- get all the customers who don't have a phone
+   - SELECT *
+     FROM customers
+	 WHERE phone IS NULL;
+	 
+	    -- to get the customers who do have a phone
+   - SELECT *
+     FROM customers
+	 WHERE phone IS NOT NULL;
+	 
+	 
+	 
+__________________________________________________________________________________________________________________________________________
+
+
+>> ORDER BY clause
+>> ID column (primary key) is the default sort column.
+
+        -- we can also sort data by multiple columns
+        -- Ex: first we wanna sort our customers based on their 'state', and then within each state we wanna sort them by their first_name
+   - SELECT *
+     FROM customers
+	 ORDER BY state, first_name;
+	    -- for example, if we have 2 rows with "FL" state, these 2 rows will be sorted based on 'first_name' column
+		
+		
+		-- we can sort these customers by their state in descending order and then sort them by their first_name in descending order
+   - SELECT *
+     FROM customers
+	 ORDER BY state DESC, first_name DESC;
+	 
+	 
+	    -- write a query to have only the items for the order with ID 2 and to sort these items based on the total price for each item in descending order
+		   (columns are 'order_id', 'product_id', 'quantity', 'unit_price')
+   - SELECT *, unit_price * quantity AS total_price
+     FROM order_items
+     WHERE order_id = 2
+	 ORDER BY total_price DESC;
+	 
+	 
+__________________________________________________________________________________________________________________________________________
+
+
+
+>> The LIMIT clause
+
+
+        -- if we wanna get the first 3 customers
+   - SELECT * 
+     FROM customers
+	 LIMIT 3;
+	 
+	 
+	    -- we wanna skip the first 6 records and then pick 3 records
+		-- 6 is the offset
+   - SELECT *
+     FROM customers
+	 LIMIT 6, 3;
+	 
+	    
+		-- Get the top 3 loyal customers (have more points than everyone else)
+   - SELECT *
+     FROM customers
+	 ORDER BY points DESC
+	 LIMIT 3;
+	 
+	 
+_________________________________________________________________________________________________________________________________________
+	 
+	 
+>> The order of these clauses matters
+
+    - SELECT
+	- FROM
+	- WHERE
+	- ORDER BY
+	- LIMIT
+		  
+		  
+__________________________________________________________________________________________________________________________________________		
+
+
+	 
+	 
+- SELECT COUNT(DISTINCT district) FROM address
+  WHERE address_id IN (SELECT DISTINCT address_id FROM customer);
+   
+   
+- SELECT * FROM address
+  WHERE address_id NOT IN (SELECT DISTINCT address_id FROM customer);
+		
+		
+>> Query a list of CITY and STATE from the STATION table.
+   - SELECT DISTINCT CITY, STATE FROM STATION;
+   
+   
+- SELECT DISTINCT district FROM address
+  ORDER BY district;
+  
+  
+- SELECT COUNT(DISTINCT district) AS district_count FROM address;
+
+
+
+__________________________________________________________________________________________________________________________________________
+__________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+>> GROUP BY, Aggregation Functions
+
+
+
+ 
+
+>> This allows us to aggregate data and apply functions to better understand how data is distributed per category.
+
+>> The main idea behind an aggregate function is to take multiple inputs and return a single output.
+
+>> After GROUP BY clause all SELECT expressions will be evaluated per group, instead of being evaluated per row.
+
+>> Most common aggregate functions:
+   - AVG()
+   - COUNT()
+   - MAX()
+   - MIN()
+   - SUM()
+   
+>> Aggregate function calls happen only in the SELECT clause or the HAVING clause.
+
+>> AVG() returns a floating point value many decimal places (e.g. 2.3456789...)
+   - you can use ROUND() to specify precision after the decimal.
+   - ROUND() actually takes in 2 parameters:
+		- the value you want to round,
+		- how many decimal places you want to round it to.
+		- If you just do ROUND() without specifying a second argument it should round to a whole number.
+		
+		
+		- SELECT ROUND(AVG(replacement_cost), 2) FROM film;
+   
+>> COUNT() simply returns the number of rows, which means by convention we just use COUNT(*)
+   COUNT() counts all non-null values, so if a column has null it does not get counted. 
+   For *, only if all columns are null then it will not be counted.
+
+	- SELECT MIN(replacement_cost) FROM film;
+
+	- SELECT MIN(replacement_cost), MAX(replacement_cost), AVG(replacement_cost) FROM film;
+	
+	- SELECT MIN(replacement_cost), MAX(replacement_cost), MIN(replacement_cost) + MAX(replacement_cost) AS summing FROM film;
+
+	- SELECT COUNT(*) FROM film;
+  
+ or it can be a column
+
+	- SELECT COUNT(film_id) FROM film;   
+
+	- SELECT SUM(replacement_cost) FROM film;
+	
+	
+>> The GROUP BY clause must appear right after a FROM or WHERE statement.
+
+>> In the SELECT statement, columns must either have an aggregate function or be in the GROUP BY call.
+	- SELECT category_col, AGG(data_col)
+	  FROM table
+	  GROUP BY category_col
+	  
+	  
+	- SELECT company, division, SUM(sales)
+	  FROM finance_table
+	  GROUP BY company, division;
+	  
+	  
+	- SELECT company, division, SUM(sales)
+	  FROM finance_table
+	  WHERE division IN ('marketing', 'transport')
+	  GROUP BY company, division;
+	  
+		-- WHERE statements should not refer to the aggregation result, later on we will learn to use HAVING to filter on those results.
+		-- We could do the WHERE before the GROUP BY aggregation but not after the aggregation.
+		   For filtering after the GROUP BY, we would need to use HAVING. e.g. HAVING SUM(...) > 10
+		
+		
+		
+		-- If yo want to sort results based on the aggregate, make sure to reference the entire function.
+	- SELECT company, SUM(sales)
+	  FROM finance_table
+	  GROUP BY company
+	  ORDER BY SUM(sales)
+	  LIMIT 5;
+		-- ORDER BY sorts the final result and is the last part of the query. So if your group by has aggregated the data, 
+		   then ORDER BY sorts the aggregated data based on the column you specified.
+		   
+		   
+		   
+	- SELECT customer_id FROM payment
+	  GROUP BY customer_id
+	  ORDER BY customer_id;
+	  
+		-- this is equivalent to 
+		
+	- SELECT DISTINCT customer_id FROM payment
+	  ORDER BY customer_id; 
+	  
+	  
+	  
+		-- What customer is spending the most money?
+	- SELECT customer_id, SUM(amount) FROM payment
+	  GROUP BY customer_id
+	  ORDER BY SUM(amount) DESC;
+	  
+	  
+	  
+		-- Count the number of transactions of each customer.
+	- SELECT customer_id, COUNT(amount) FROM payment
+	  GROUP BY customer_id
+	  ORDER BY COUNT(amount);
+	  
+	  
+	  
+>> Grouping by multiple columns	  
+		-- How much each customer spent with each staff member?
+	- SELECT customer_id, staff_id, SUM(amount) FROM payment
+	  GROUP BY customer_id, staff_id
+	  ORDER BY customer_id;
+	  
+	  
+	    -- subordering
+	- SELECT staff_id, customer_id, SUM(amount) FROM payment
+      GROUP BY staff_id, customer_id
+	  ORDER BY staff_id, customer_id;
+	  
+	  
+	  
+	  
+>> Grouping by on a date column
+		-- payment_date is of type timestamp (date and time)
+		
+		-- to convert a timestamp to a date 
+	- SELECT DATE(payment_date) FROM payment;
+	
+	
+		-- days having the most in dollar transactions
+	- SELECT DATE(payment_date), SUM(amount) FROM payment
+	  GROUP BY DATE(payment_date)
+	  ORDER BY SUM(amount) DESC;
+__________________________________________________________________________________________________________________________________________
+
+
+	- SELECT film_id, title, replacement_cost FROM film
+	  WHERE replacement_cost = (SELECT MAX(replacement_cost) FROM film);
+	  
+__________________________________________________________________________________________________________________________________________
+
+
+		-- film_id of minimum replacement cost from film table
+	- SELECT film_id, replacement_cost FROM film
+	  ORDER BY replacement_cost
+	  LIMIT 1;
+	
+	or
+	
+	- SELECT film_id, replacement_cost FROM film
+	  WHERE replacement_cost = (SELECT MIN(replacement_cost) FROM film)
+	  LIMIT 1;
+	  
+
+___________________________________________________________________________________________________________________________________________
+	
+	
+		-- how can we write both the start and end part of a name to just leave the middle part empty.
+		   say the name is cristiano
+           you specify that the name starts with cris and ends with no and you want sql to find the names which matches this description
+	- WHERE name ILIKE 'cris%' AND name ILIKE '%no';
+
+
+		-- You can concatenate the different conditions, but make sure to use the correct parenthesis to enclose each part.
+	- WHERE (name ILIKE 'lio%' and name ILIKE '%el') or (name ILIKE 'cris%' and name ILIKE '%no');
+	
+___________________________________________________________________________________________________________________________________________
+
+
+>> Getting Top N values and summing them
+
+		-- I tried to get the the top 5 values of replacement cost using the following code:
+	- SELECT replacement_cost FROM film
+	  ORDER BY replacement_cost DESC
+	  LIMIT 5;
+	  
+	  
+	    -- Now when I wanted to sum the values on the replacement cost column that appear on my query result:
+	- SELECT SUM(replacement_cost) FROM
+	  (SELECT replacement_cost FROM film
+	  ORDER BY replacement_cost DESC
+	  LIMIT 5) AS foo;
+
+___________________________________________________________________________________________________________________________________________
+
+
+https://stackoverflow.com/questions/1124603/grouped-limit-in-postgresql-show-the-first-n-rows-for-each-group
+
+
+___________________________________________________________________________________________________________________________________________
+___________________________________________________________________________________________________________________________________________
+
+
+
+
+
+>> HAVING clause
+
+
+
+
+
+>> It allows us to filter after an aggregation has already taken place. So it comes after a GROUP BY call.
+
+>> HAVING is a filter statement that is used along with GROUP BY to filter the aggregated results. 
+   Wherease WHERE is used as a general purpose filter.
+
+>> HAVING is specific for GROUP BY, you can use HAVING after group by to check for aggregated statistics (e.g. COUNT, SUM) 
+   with each group meets a certain criteria.
+	
+	- SELECT company, SUM(sales) FROM finance_table
+	  WHERE company != 'Google'   					 -- we don't want to include Google in our final results
+	  GROUP BY company
+	  HAVING SUM(sales) > 1000;    					 -- filtering based off aggregate results
+								   
+	  
+	
+	- SELECT customer_id, SUM(amount) FROM payment
+	  GROUP BY customer_id
+	  HAVING SUM(amount) > 100;
+	  
+	  
+	- SELECT customer_id, SUM(amount) FROM payment
+	  WHERE customer_id NOT IN (84, 1, 234)
+	  GROUP BY customer_id
+	  HAVING SUM(amount) > 200;
+	  
+	  
+		-- how many transactions occurred at each store
+	- SELECT store_id, COUNT(*) FROM payment
+	  GROUP BY store_id
+	  HAVING COUNT(*) > 300;
+	  
+	  or (will give us the same result)
+	
+	- SELECT store_id, COUNT(customer_id) FROM payment
+      GROUP BY store_id
+	  HAVING COUNT(customer_id) > 300;
+	  
+	  
+		-- how many customers does each store have?
+	- SELECT store_id, COUNT(DISTINCT customer_id) FROM payment
+	  GROUP BY store_id
+	  
+	  
+		-- What are the customer IDs of customers who have spent more than $100 in payment transactions with our staff_id number 2?
+	- SELECT customer_id, SUM(amount) FROM payment
+	  WHERE staff_id = 2
+	  GROUP BY customer_id
+	  HAVING SUM(amount) > 100;
+	    -- The provided solution actually filters by the staff_id first so you ended up with a lot less values than the full data, 
+		   so you only need to group by the customer_id but not the staff_id only to filter again.
+	  
+	  or
+	  
+	- SELECT staff_id, customer_id, SUM(amount) FROM payment
+	  GROUP BY staff_id, customer_id            -- all columns selected must either have an aggregate function or be in the GROUP BY call
+	  HAVING SUM(amount) > 100 AND staff_id = 2;
+	  
+	  
+	  
+_________________________________________________________________________________________________________________________________________
+
+
+	- SELECT customer_id, SUM(amount) FROM payment
+	  GROUP BY customer_id
+	  HAVING SUM(amount) > 100;
+	  
+	  
+-- This list returns 295 entries based on which customer has payment >100, 
+   how do I use count in this to give me a round number of 295 without scrolling to the bottom?
+   
+	- SELECT COUNT(*) FROM 
+	  (
+	   SELECT customer_id, SUM(amount) FROM payment
+	   GROUP BY customer_id
+	   HAVING SUM(amount) > 100
+	   ) AS Agg_cust;			--  it needs an alias in the subquery 
+	   
+	   
+__________________________________________________________________________________________________________________________________________
+
+
+-- if I want only customer_id having the highest SUM(amount)
+	- SELECT customer_id, SUM(amount) FROM payment
+	  GROUP BY customer_id
+	  ORDER BY SUM(amount) DESC
+	  LIMIT 1;
+	  
+	  
+__________________________________________________________________________________________________________________________________________
+
+
+>> after your HAVING function, you can ORDER BY whatever column you'd like in either ASC or DESC.
+>> In short, use HAVING as a filter condition after GROUP BY clause. 
+   ORDER BY is used to order your results, and it is always the last step in the query.
+
+
+	- SELECT customer_id, SUM(amount) FROM payment
+	  GROUP BY customer_id
+	  HAVING SUM(amount) > 150
+	  ORDER BY SUM(amount) ASC;
+	  
+	  
+__________________________________________________________________________________________________________________________________________
+
+
+https://ubiq.co/database-blog/how-to-get-last-row-per-group-in-postgresql/
+
+
+__________________________________________________________________________________________________________________________________________
+
+
+	- SELECT customer_id, SUM(amount) FROM payment
+	  GROUP BY customer_id
+      HAVING SUM(amount) BETWEEN 150 AND 170;
+	  
+__________________________________________________________________________________________________________________________________________
+
+
+-- What customer has the highest customer ID number whose name starts with an 'E' and has an address ID lower than 500?
+	- SELECT * FROM customer
+	  WHERE first_name LIKE 'E%' AND address_id < 500
+	  ORDER BY customer_id DESC
+	  LIMIT 1;
+	  
+	or with a subquery
+	
+	- SELECT * FROM customer
+	  WHERE customer_id = (
+		SELECT MAX(customer_id) FROM customer
+		WHERE first_name LIKE 'E%' AND address_id < 500);
+	  
+__________________________________________________________________________________________________________________________________________
+__________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+>> AS clause
+
+ 
+
+>> The keyword AS can be used between the column or table name and the alias name, but this is optional.
+
+>> allows us to create an 'alias' (alternative name) for a column, table or result.
+
+		-- the example syntax
+	- SELECT column AS new_name FROM table;
+
+
+		-- we can also use this on functions on a column
+	- SELECT SUM(column) AS new_name FROM table;
+	
+	
+>> KEEP IN MIND, the AS operator gets executed at the very end of a query.
+   That means that we cannot use the column ALIAS inside of something like a WHERE operator or a HAVING clause.
+   You essentially only get to use that ALIAS in the SELECT statement, anywhere else it's not actually going to be valid.
+   (this is specific for PostgreSQL, in MySQL they work)
+   
+   
+	- SELECT COUNT(*) AS num_transactions FROM payment;
+   
+	- SELECT customer_id, SUM(amount) AS total_spent FROM payment
+      GROUP BY customer_id;
+	  
+	  
+	  
+		!!! Mistake
+	- SELECT customer_id, SUM(amount) AS total_spent FROM payment
+	  GROUP BY customer_id
+	  HAVING total_spent > 100;
+	    !!! Error: column "total_spent" does not exist.
+		-- Because an ALIAS gets assigned at the very end, you cannot use it in WHERE statement, HAVING clause.
+           You have to choose either original column name or the original functions, for example:
+
+	- SELECT customer_id, SUM(amount) AS total_spent FROM payment
+	  GROUP BY customer_id 
+	  HAVING SUM(amount) > 100;
+	  
+	
+	- SELECT customer_id, amount AS new_name FROM payment
+	  WHERE amount > 2; 
+		(-- WHERE new_name > 2 will NOT work) 
+	 
+	
+
+>> https://www.enterprisedb.com/postgres-tutorials/how-use-tables-and-column-aliases-when-building-postgresql-query
+
+
+>> you cannot use an alias inside a WHERE call.
+__________________________________________________________________________________________________________________________________________
+__________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+>> JOINS
+
+
+
+>> JOINs allow us to combine multiple tables together.
+
+>> The main reason for the different JOIN types is to decide how to deal with information only present in one of the joined tables.
+
+>> https://blog.codinghorror.com/a-visual-explanation-of-sql-joins/
+
+>> https://www.talend.com/
+
+>> https://www.codeproject.com/Articles/33052/Visual-Representation-of-SQL-Joins
+__________________________________________________________________________________________________________________________________________
+
+
+>> INNER JOIN
+
+
+
+>> An INNER JOIN will result with the set of records that match in both tables. 
+  (the intersection of Venn diagram)
+
+
+>> Syntax
+	- SELECT * FROM TableA
+	  INNER JOIN TableB
+	  ON TableA.col_match = TableB.col_match;
+	  
+
+>> INNER JOIN is essentially symmetrical. 
+	- SELECT * FROM TableB
+	  INNER JOIN TableA
+	  ON TableA.col_match = TableB.col_match;
+		
+		-- you would get the same result.
+		
+		
+		
+	- SELECT * FROM Registrations
+	  INNER JOIN Logins
+	  ON Registrations.name = Logins.name;
+		
+		-- because we said select all the columns, the 'name' column happens to be duplicated.
+		-- if you want to get rid of this duplication, you can specify what columns you want.
+	  
+	- SELECT reg_id, Logins.name, log_id FROM Registrations       -- When you do join, you can perform select on either of the joined tables.
+	  INNER JOIN Logins
+	  ON Registrations.name = Logins.name;
+	  
+		-- why we need to specify Logins.name/Registrations.name, instead of saying just name
+		   it's because name exists in both tables and if I am selecting sth after JOIN, I should specify what table I'm referring to.
+		
+		
+>> Also if you see just JOIN without the INNER, PostgreSQL will treat it as an INNER JOIN.
+
+
+		   
+>> The sequence of clauses
+    - SELECT .. FROM ..
+	- INNER JOIN .. ON ..
+    - WHERE
+	- LIMIT     
+  
+
+
+>> JOINING ACCROSS DATABASES
+
+   - SELECT * FROM orders o
+	 JOIN cityLine.consignees c
+		  ON o.consignee_id = c.id
+
+___________________________________________________________________________________________________________________________________________
+
+>> Example 1
+	-- query where DVD club owner wants to award top 5 customer which spent the most
+	
+	
+	table 'payment':
+		columns: 'payment_id', 'customer_id', 'amount'
+			note: 'customer_id' column  can be repeated in 'payment' table
+	table 'customer':
+		columns: 'customer_id', 'first_name', 'last_name'
+		
+		
+	- SELECT customer.customer_id, first_name, last_name, total_spent FROM 
+		(SELECT customer_id, SUM(amount) AS total_spent FROM payment
+		GROUP BY customer_id
+		ORDER BY SUM(amount) DESC 
+		LIMIT 5) AS new_table
+	  INNER JOIN customer
+	  ON customer.customer_id = new_table.customer_id
+	  ORDER BY total_spent DESC;
+		
+	or 
+	
+	- SELECT customer_id, first_name, last_name FROM customer
+	  WHERE customer_id IN (
+		SELECT customer_id FROM payment
+		GROUP BY customer_id
+		ORDER BY SUM(amount) DESC
+		LIMIT 5
+		);
+			-- the only difference from the above mentioned code is the fact that this one's output is ordered by customer_id, and not by SUM(amount) 
+	
+	
+__________________________________________________________________________________________________________________________________________
+
+
+
+>> Example 2
+	-- query where DVD club owner wants to award top 5 customer which spent the most but who's names start with 'R'
+	
+	- SELECT newTable.customer_id, first_name, last_name, total_spent FROM
+		(SELECT customer_id, SUM(amount) AS total_spent FROM payment
+		GROUP BY customer_id) AS newTable
+	  INNER JOIN customer
+      ON customer.customer_id = newTable.customer_id
+	  WHERE first_name LIKE 'R%'
+	  ORDER BY total_spent DESC
+	  LIMIT 5;
+	  
+	or
+	
+	- SELECT customer.customer_id, first_name, last_name, SUM(amount) FROM customer
+	  INNER JOIN payment
+	  ON payment.customer_id = customer.customer_id
+	  WHERE first_name LIKE 'R%'
+	  GROUP BY customer.customer_id
+	  ORDER BY SUM(amount) DESC
+	  LIMIT 5;
+	  
+	  
+___________________________________________________________________________________________________________________________________________
+
+
+>> Example 3
+	-- Can we INNER JOIN more than 2 tables in the same syntax? 
+		-- we have 3 tables:
+			
+			actor: actor_id, first_name, last_name, last_update
+			film_actor: actor_id, film_id, last_update
+			film: film_id, title, description...
+		
+		
+			- SELECT * FROM actor A
+			  INNER JOIN film_actor FA
+			  ON A.actor_id = FA.actor_id
+			  INNER JOIN film F
+			  ON F.film_id = FA.film_id
+			  
+			  
+___________________________________________________________________________________________________________________________________________
+	
+>> it is possible for a row for one table to be joined to multiple rows in another. One customer can make many different payments.
+   (different payment_ids, but the same customer_id, so customer information will be added to each payment_id, 
+   which results in one customer record being joined to multple payments)
+	
+	- SELECT payment_id, payment.customer_id, first_name, last_name FROM payment
+	  INNER JOIN customer
+	  ON customer.customer_id = payment.customer_id
+	  
+		-- Notice how the INNER JOIN is only going to join customers that are found in both payments and the customer table.
+           Essentially that means I'm not going to see customers that have never created any sort of payment.
+
+
+>> We usually join by a unique field (ID) that can properly distinguish the identity, otherwise it will get joined more than once. 
+
+
+>> Query execution order - https://towardsdatascience.com/the-6-steps-of-a-sql-select-statement-process-b3696a49a642
+
+
+>> Is it possible to do an INNER JOIN with 3 or more tables?
+   Yes, you can concatenate INNER JOIN statements, two tables at a time and stack it up. 
+   There is no limit for how many JOINS as long as there are two identical column to join.
+   
+
+>> What if there are multiple columns in common to both TableA and TableB?
+	SELECT .. FROM TableA
+	INNER JOIN TableB
+	ON condition1 AND condition2
+
+
+__________________________________________________________________________________________________________________________________________
+___________________________________________________________________________________________________________________________________________
+
+
+>> FULL OUTER JOIN
+
+
+>> just grabs everything, whether it's present in both tables or present only in one table.
+
+>> Full Outer join retains the left and right side even if there is no matching records on the other. 
+   (e.g. if a customer has not made any payment yet, but you want to see customer information in your query)
+
+
+>> syntax
+	- SELECT * FROM TableA
+	  FULL OUTER JOIN TableB
+	  ON TableA.col_match = TableB.col_match
+	  
+	or 
+	
+	- SELECT * FROM TableB
+	  FULL OUTER JOIN TableA
+	  ON TableA.col_match = TableB.col_match
+	  
+		-- FULL OUTER JOIN is symmetrical. (you're going to grab everything anyway)
+		
+		
+>> The way we can think about this is 
+	-- we're saying grab everything from TableA, so we fill in first everything from TableA
+	-- then we need to start filling information for where we actually have a col_match
+	-- for information that is only present in one of the joined tables, what SQL ends up automatically doing for us is filling this in with NULL, 
+	   essentially clarifying to you that there was no value there present.
+	-- if the customer has not made any payment at all, then there is nothing to join from the payment side. Since we are using FULL OUTER JOIN, 
+	   the payment side will NULL, so payment.payment_id and payment.customer_id will be null.
+	   
+___________________________________________________________________________________________________________________________________________
+___________________________________________________________________________________________________________________________________________
+
+
+>> FULL OUTER JOIN with WHERE
+
+
+>> we can do this in order to get rows unique to either table.
+   (in other words, rows that are not found in both tables, essentially, this is the exact opposite of an inner join)
+   (The whole Venn diagram - the intersection)
+   
+
+>> syntax
+	- SELECT * FROM TableA
+	  FULL OUTER JOIN TableB
+	  ON TableA.col_match = TableB.col_match
+	  WHERE TableA.id IS NULL 
+		OR TableB.id IS NULL;
+		
+		-- The rest of the keys could be null by default, whereas primary key should not be null unless there is no match from the outer join.
+        -- you will need to check for NULL using IS NULL since NULL is a type, you can't do "=" directly.
+
+
+
+>> Let's imagine we want to make sure that we don't have any payment information that's not attached to customer or 
+   that we don't have some customer information that isn't attached to any payments.
+>> Essentially, we want to make sure that all the payments we have is associated with a some current customer and 
+   all the customers we have are associated with some historical payment.
+
+
+	- SELECT * FROM payment
+	  FULL OUTER JOIN customer
+	  ON customer.customer_id = payment.customer_id
+	  WHERE customer.customer_id IS NULL 
+		OR payment.payment_id IS NULL;
+		
+		-- what's another way we could confirm this?
+	
+	- SELECT COUNT(DISTINCT customer_id) FROM customer;
+	- SELECT COUNT(DISTINCT customer_id) FROM payment;
+		
+		-- Now, technically, this doesn't fully answer because there could possibly be different ID numbers in different tables.
+		   The truly the real way is with FULL OUTER JOIN with WHERE.
+		   
+		   
+>> To see which IDs are NOT shared between tables, you can also do
+	- SELECT COUNT(DISTINCT payment.customer_id) FROM payment
+	  FULL OUTER JOIN customer
+	  ON payment.customer_id = customer.customer_id
+	  WHERE customer.customer_id != payment.customer_id
+	  
+
+
+>> if the full outer join (without where condition) takes everything from two tables, why do we need to specify the columns to join? (ON...)
+
+   SQL needs to know which row in TableA goes with the row in TableB.
+
+  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> To know the length of a string
+	- SELECT title, LENGTH(title) FROM film;
+	
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> NULL is not a string "null". It is a data type that means the column has no value.
+
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+>> LEFT JOIN (LEFT OUTER JOIN)
+
+
+>> This results in the set of records that are in the left table. If there is no match with the right table, then those results are null.
+
+>> syntax
+	- SELECT * FROM TableA
+	  LEFT JOIN TableB
+	  ON TableA.col_match = TableB.col_match
+	  
+	!!! Venn diagram in NO LONGER symmetrical, which means the order will actually matter.
+
+	-- information from only TableA + match with TableB, 
+	   (if something is only found in TableB, then it is not going to be returned in the query).
+	   
+
+	film: film_id, title
+	inventory: film_id, inventory_id
+	-- Keep in mind, each row in the film table may have zero or many rows in the inventory table.
+       (the same film_id - different inventory_ids or no inventory_id)
+	   
+	   
+	- SELECT film.film_id, title, inventory_id FROM film
+	  LEFT JOIN inventory
+	  ON film.film_id = inventory.film_id
+		
+		-- as a result we'll get several rows with the same film_id, the same title, different inventory_ids, 
+		   even those film_ids that don't have attached inventory_id. 
+	   
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+>> LEFT OUTER JOIN with WHERE
+
+
+>> to get rows unique only to the left table. (those are rows found in TableA and not found in TableB)
+
+>> syntax
+	- SELECT * FROM TableA
+	  LEFT OUTER JOIN TableB
+	  ON TableA.col_match = TableB.col_match
+	  WHERE TableB.id IS NULL;
+	  
+	  
+	- SELECT film.film_id, title, inventory_id, store_id FROM film
+	  LEFT JOIN inventory
+	  ON film.film_id = inventory.film_id
+	  WHERE inventory.inventory_id IS NULL;
+		
+		-- getting those films that aren't attached to any inventory_id
+		
+	or
+	
+	- SELECT film.film_id, title, inventory_id, store_id FROM film
+      LEFT JOIN inventory
+	  ON film.film_id = inventory.film_id
+	  WHERE inventory.film_id IS NULL;
+		
+		-- If left join does not include a match on the right side, everything on the right will be NULL.
+	  
+	  
+	  
+		-- count the number of items where we have information on films but no inventory
+	- SELECT COUNT(*) FROM film
+	  LEFT JOIN inventory
+	  ON film.film_id = inventory.film_id
+	  WHERE inventory.film_id IS NULL;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+>> RIGHT JOIN (RIGHT OUTER JOIN)
+
+
+>> return back rows that can be found either exclusively in tableB or in both TableB and tableA 
+   and do not return back rows that are exclusively only found in tableA.
+
+>> syntax
+	- SELECT * FROM TableA
+	  RIGHT OUTER JOIN TableB
+	  ON TableA.col_match = TableB.col_match
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+>> RIGHT OUTER JOIN with WHERE
+
+
+>> syntax
+	- SELECT * FROM TableA
+	  RIGHT JOIN TableB
+	  ON TableA.col_match = TableB.col_match
+	  WHERE TableA.id IS NULL;
+	  
+		-- rows that can be found exclusively in TableB and are not found in TableA.
+
+	  
+	  
+>> If there are duplicate values, (e.g.  2 same values in one table), then it will be joined multiple times. 
+   For example, the same row in the left table is joined to two rows on the right and appears as two rows.	  
+	  
+>> Once you join two tables you can access all the columns, if the columns are duplicate in both tables you will have to specify the table name.  
+
+>> you can add a lot of parameters to that JOIN call, like WHERE or HAVING or GROUP BY to get the final blend you were looking for.
+
+_____________________________________________________________________________________________________________________________________________
+
+
+	- SELECT * FROM TableA
+      RIGHT JOIN TableB
+      ON TableA.col_match = TableB.col_match;
+   
+					<=>
+					
+	- SELECT * FROM TableB
+	  LEFT JOIN TableA
+	  ON TableA.col_match = TableB.col_match;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> UNION, UNION ALL
+
+
+
+>> The UNION operator is used to combine the result-set of two or more SELECT statements.
+   Essentially just pasting the results of two select statements right on top of each other.
+   
+   
+BUT KEEP IN MIND
+_________________
+
+>> If we perform UNION ALL on the two datasets, the resulting data set will contain all the elements of both datasets combined. 
+   If a data point occurs multiple times, it is added every time.
+   
+>> If we take a UNION of two datasets, the resulting dataset will contain all the unique elements of both datasets combined. 
+   If a data point occurs multiple times, it will only be considered once.
+   This is equivalent to taking UNION ALL and then DISTINCT over the resulting data set. Hence, UNION is slower than UNION ALL.
+_________________
+
+
+>> FULL OUTER JOIN merges two tables side to side, UNION usually concatenates the tables (up down).
+
+   
+>> syntax
+	- SELECT column_name(s) FROM table1
+	  UNION
+	  SELECT column_name(s) FROM table2;
+	  
+	- SELECT column_name(s) FROM table1
+	  UNION ALL 
+	  SELECT column_name(s) FROM table2;
+	  
+	  
+>> Something to keep in mind is that they should be logical and they should match up in a way that you can stack the results right on top of another.
+
+	
+	- SELECT * FROM Sales2021_Q1
+	  UNION
+	  SELECT * FROM Sales2021_Q2
+	  ORDER BY name;
+	  
+	  
+>> While using UNION function, is it necessary that column names from tables must match?
+	Not necessary but the two queries must have the same number of columns and data type.
+	
+	
+	
+>> to sum the both quarter sales
+	- SELECT SUM(..) FROM
+      (SELECT ...
+		UNION...
+	   SELECT...)
+	   
+
+	- SELECT SUM(...)
+	  FROM (SELECT ..... UNION....) A
+	  GROUP BY ...
+	  
+		-- Do the union as a subquery first, then perform where and group by on the returned 'unioned' results.
+
+
+
+>> https://www.educative.io/answers/what-is-the-difference-between-union-and-union-all
+
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+Advanced SQL commands
+_______________________
+
+
+
+>> Timestamps and Extract
+
+
+PostgreSQL can hold date and time information.
+- TIME _ Contains only time
+- DATE _ Contains only date
+- TIMESTAMP _ Contains date and time
+- TIMESTAMPTZ _ Contains date, time, timezone
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> to show the values of all configuration parameters, with descriptions.
+	- SHOW ALL;
+
+
+>> to get the current timezone that we're working in		
+	- SHOW TIMEZONE;
+	
+	
+>> to get the current timestamp (with time zone)
+	- SELECT NOW();
+	
+	
+>> to get the current timestamp (with time zone) as a string
+	- SELECT TIMEOFDAY();
+		
+		
+>> to get the current time
+	- SELECT CURRENT_TIME;
+	
+
+>> to get the current date
+	- SELECT CURRENT_DATE;
+	
+	
+
+>> SHOW query displays you structure of the table or column .. whereas SELECT query displays contents of the table.
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+>> EXTRACT()
+
+
+>> allows you to "extract" or obtain a sub-component of a date value.
+	- YEAR
+	- MONTH
+	- DAY
+	- WEEK
+	- QUARTER
+	
+	
+
+>> if you have a full timestamp and you only want the YEAR component of it
+	- EXTRACT(YEAR FROM date_col)
+	
+	- SELECT EXTRACT(YEAR FROM payment_date) FROM payment;
+	- SELECT EXTRACT(HOUR FROM payment_date) FROM payment;
+	- SELECT EXTRACT(MONTH FROM payment_date) AS month_time FROM payment;
+	- SELECT DISTINCT EXTRACT(MONTH FROM payment_date) AS month_time FROM payment;
+	- SELECT EXTRACT(MONTH FROM payment_date) AS mm, COUNT(*) FROM payment
+      GROUP BY mm;
+	- SELECT EXTRACT(MONTH FROM payment_date) FROM payment
+      WHERE payment_id = 17507;
+	  
+	  
+>> to select only time part of the timestamp
+	- SELECT payment_date :: time FROM payment;
+	
+>> to select only date part of the timestamp
+		-- https://tableplus.com/blog/2018/07/postgresql-how-to-extract-date-from-timestamp.html
+	- SELECT payment_date :: date FROM payment;
+	- SELECT DATE(payment_date) FROM payment;
+	
+
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> AGE()
+	
+
+>> calculates and returns the current age given a timestamp,
+   you simply just pass in some timestamp column into the AGE() function.
+   
+	- AGE(date_col)
+
+
+>>  it's just taking the current date that you are querying and then calculating how old the timestamp in the actual database is. 
+	
+	- SELECT AGE(payment_date) FROM payment; 
+
+
+>> Age of a baby since born.
+   Last visit time since the customer visit the store.
+   
+_____________________________________________________________________________________________________________________________________________
+
+
+>> TO_CHAR()
+
+
+>> to convert data types to text
+	- TO_CHAR(date_col, 'mm-dd-yyyy')
+	
+	- SELECT TO_CHAR(payment_date, 'mm-dd-yyyy') FROM payment;
+	- SELECT TO_CHAR(payment_date, 'MONTHY   YYY') FROM payment;
+	- SELECT TO_CHAR(payment_date, 'mon/dd/yyyy') FROM payment;
+	- SELECT COUNT(*) FROM payment 
+	  WHERE TO_CHAR(payment_date, 'day') ILIKE 'monday%';
+	- SELECT TO_CHAR(payment_date, 'day') AS dd, COUNT(*) FROM payment
+      GROUP BY dd;
+
+>> https://www.postgresql.org/docs/current/functions-formatting.html
+>> https://learnsql.com/cookbook/how-to-order-by-month-name-in-postgresql-or-oracle/
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+http://www.sqlines.com/postgresql/how-to/datediff
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+-- gotten a lot of questions of why TO_CHAR "doesn't work" for one of the assessment questions. It actually does work, but you need 
+   to realize certain codes are "blank padded to 9 characters", which means instead of returning 'Monday' it returns 'Monday   ' 
+   with extra spaces to fill up at least 9 spaces.
+   
+   
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+>> Mathematical Functions and Operators
+
+
+
+>> https://www.postgresql.org/docs/9.5/functions-math.html
+
+>> you can add one column to another, or subtract one from another....
+
+>> !!! the calculated column does not get saved into the database, it is only returned as output to your GUI (Graphical User Interface).
+
+
+		-- what percentage of the "replacement_cost" is the "rental_rate"
+	
+	- SELECT rental_rate / replacement_cost FROM film;
+	- SELECT ROUND(rental_rate / replacement_cost, 2) AS fraction FROM film; 
+	- SELECT ROUND(rental_rate / replacement_cost * 100, 2) AS percentage FROM film;
+	
+		
+		
+		
+		-- How do I order the result ("percentage" column) in an ascending order?
+	
+	- SELECT ROUND(RENTAL_RATE / REPLACEMENT_COST * 100, 2) AS percentage FROM film
+	  ORDER BY percentage
+	  
+	 or
+	 
+	- SELECT percentage FROM
+		(SELECT ROUND(RENTAL_RATE / REPLACEMENT_COST * 100, 2) AS percentage
+		FROM film) AS new_table
+	  ORDER BY percentage
+
+	
+		
+		
+		-- to get 10% of the replacement_cost
+	
+	- SELECT 0.1 * replacement_cost AS deposit FROM film;
+	
+	
+_____________________________________________________________________________________________________________________________________________
+
+
+>> usually we put WHERE after JOIN and before GROUP BY if we choose to use those. ORDER BY will be the last since that orders the results.
+
+	
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+>> String Functions and Operators
+
+
+
+
+
+(that allow us to edit, combine and alter text data columns) 
+
+>> https://www.postgresql.org/docs/15/functions-string.html
+
+
+		
+		-- to grab the length of first_name of somebody
+	- SELECT LENGTH(first_name) FROM film;
+		
+>> there is a difference between LENGTH() and CHAR_LENGTH() functions.
+   https://www.google.com/search?q=difference+between+LENGTH+and+char_length
+   LENGTH() returns the length of the string measured in bytes.
+   CHAR_LENGTH() returns the length of the string measured in characters.
+
+
+	- SELECT CHAR_LENGTH(first_name),LENGTH(first_name)
+	  FROM customer
+	  WHERE CHAR_LENGTH(first_name) != LENGTH(first_name);
+
+		--(if there are no differences, no results are returned)
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> to concatenate strings use || operator (pipe)
+	
+	- SELECT first_name || last_name FROM customer;
+		-- there is no space in the results
+
+		-- to fix it
+	- SELECT first_name || ' ' || last_name AS full_name FROM customer;
+	
+		-- you can replace it with whatever you want
+	- SELECT first_name || '--' || last_name FROM customer;
+	
+		-- in order full_name to be in uppercase
+	- SELECT UPPER(first_name) || ' ' || UPPER(last_name) AS full_name FROM customer;	
+	- SELECT UPPER(first_name || ' ' || last_name) AS full_name FROM customer;
+
+	
+		-- to create a mail
+	- SELECT first_name || last_name || '@gmail.com' FROM customer; 
+	
+		-- to get only the first letter of the "first_name" column
+	- SELECT LEFT(first_name, 1) || last_name || '@gmail.com' FROM customer;
+	
+		-- to lowercase everything
+	- SELECT LOWER(LEFT(first_name, 1)) || LOWER(last_name) || '@gmail.com' AS mail FROM customer;
+	- SELECT LOWER(LEFT(first_name,1) || last_name || '@gmail.com') as mail FROM customer;
+	
+
+
+
+>> after concatenating the first and last last name how do we retrieve it from the customer table as another column.
+
+	- SELECT *, UPPER(first_name || ' ' || last_name) AS full_name FROM customer;
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+>> Table alias (e.g. customer as c) does not impact the results, table alias are just short forms that you can easily reference to the table 
+   in the rest of the query. Column alias will reflect in the output column name.
+   
+   
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+>> SubQuery
+
+
+
+
+>> A subquery allows you to construct more complex queries, essentially performing a query on the results of another query.
+   The syntax is straightforward and involves the use of two SELECT statements.
+      
+>> The SubQuery is performed first since it is inside the parenthesis.
+
+
+_____________________________________________________________________________________________________________________________________________
+   
+   
+>> Let's imagine a table that consists of the student names and their test scores.
+
+		-- to grab everything
+	- SELECT student, grade FROM test_scores;
+	
+		-- to grab the average grade across the entire class
+	- SELECT AVG(grade) FROM test_scores;
+	
+		
+		-- How can we get a list of students who scored better than the average grade?
+			. two steps
+			1) first get the average grade
+			2) then compare the rest of the table against it.
+			
+			- SELECT student, grade FROM test_scores
+			  WHERE grade > (SELECT AVG(grade) FROM test_scores);
+			  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> We can also use the IN operator in conjunction with a subquery to check against multiple results returned.
+	
+	- SELECT student, grade FROM test_scores
+	  WHERE student IN (SELECT student FROM honor_roll_table);
+	  
+	  (this can also be done with JOIN)
+	  
+	  
+_____________________________________________________________________________________________________________________________________________	  
+
+	
+	- SELECT film_id FROM rental
+	  INNER JOIN inventory
+	  ON inventory.inventory_id = rental.inventory_id
+	  WHERE return_date BETWEEN '2005-05-29' AND '2005-05-30';
+		
+		-- getting back the list of film_ids that happen to be returned between these two dates.
+	  
+	  
+		-- to get the title of those films, we can use the above code as a subquery
+		
+	- SELECT film_id, title FROM film
+	  WHERE film_id IN (SELECT film_id FROM rental
+						INNER JOIN inventory
+						ON inventory.inventory_id = rental.inventory_id
+						WHERE return_date BETWEEN '2005-05-29' AND '2005-05-30')
+	  ORDER BY film_id;
+	  
+	  or 
+	  
+	  SELECT film.film_id, title FROM film
+	  INNER JOIN (SELECT film_id FROM rental
+		          INNER JOIN inventory
+		          ON inventory.inventory_id = rental.inventory_id
+		          WHERE return_date BETWEEN '2005-05-29' AND '2005-05-30') AS joined
+      ON film.film_id = joined.film_id
+      ORDER BY film_id
+	  
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+>> EXISTS operator
+
+
+
+
+>> It is used to test for the existence of rows in a subquery.
+   Typically a subquery is passed in the EXISTS() function to check whether or not any rows are returned with the subquery.
+   If the subquery returns at least one row, the result of EXISTS is true. In case the subquery returns no row, the result of EXISTS is false.
+   
+
+>> Syntax
+
+	- SELECT column_name FROM table_name
+	  WHERE EXISTS
+	  (SELECT column_name FROM table_name
+	  WHERE condition);
+
+
+
+>> That is a specific syntax where you would use for EXISTS(). So when you have the equality in the Subquery and an EXISTS() before that,
+   it will check for the equality in the EXISTS() condition.
+   
+   
+_____________________________________________________________________________________________________________________________________________
+
+
+>> "customer" table: columns: customer_id, first_name, last_name
+   "payment" table: columns: payment_id, customer_id, amount
+
+
+		-- find customers who have at least one payment whose amount is greater than 11, grab the first name and last name of those customers.
+
+	- SELECT DISTINCT payment.customer_id, first_name, last_name FROM payment
+	  INNER JOIN customer
+	  ON customer.customer_id = payment.customer_id
+	  WHERE amount > 11;
+	  
+	  or
+	  
+	- SELECT customer_id, first_name, last_name FROM customer
+	  WHERE customer_id IN (SELECT DISTINCT customer_id FROM payment
+							WHERE amount > 11);
+							
+							
+							
+	  or with EXISTS operator
+	  
+	- SELECT customer_id, first_name, last_name FROM customer AS c
+      WHERE EXISTS 
+	  (SELECT * FROM payment AS p
+	  WHERE c.customer_id = p.customer_id
+	        AND amount > 11);
+			
+_____________________________________________________________________________________________________________________________________________
+
+
+>> NOT EXISTS
+
+		-- to do the opposite of this, to check for customers that have not made any payment greater than $11.
+	
+	- SELECT first_name, last_name FROM customer AS c
+	  WHERE NOT EXISTS 
+	  (SELECT * FROM payment
+	  WHERE p.customer_id = c.customer_id
+	        AND amount > 11);
+						
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+>> There are table and column alias:
+	column alias - is meant for output, 
+	table alias - is meant for simplification and you can use table alias along the query. 
+			      the table alias is meant to make the query more readable via short forms for table names.
+			
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+>> SELF JOIN
+
+
+
+
+
+>> A self join is a query in which a table is joined to itself.
+
+>> Self joins are useful for comparing values in a column of rows within the same table.
+
+>> There's no special keyword for a self join, it's simply standard JOIN syntax with the same table in both parts.
+
+>> !!! However, when using a self join it is necessary to use an alias for the table, otherwise the table names would be ambiguous.
+
+
+
+
+>> Syntax
+
+	- SELECT tableA.col, tableB.col FROM table AS tableA
+	  INNER JOIN table AS tableB
+	  ON tableA.some_col = tableB.other_col;
+	  
+	  
+	  
+	 _________________________________________________
+	|					employees                     |
+	|_________________________________________________|
+	|    emp_id    |     name       |    report_id    |
+	|______________|________________|_________________|
+	|	1          |    Andrew      |       3         |
+	|______________|________________|_________________|
+	|   2          |     Bob        |       3         |
+	|______________|________________|_________________|
+	|   3          |    Charlie     |       1         |
+	|______________|________________|_________________|
+	
+		
+	So each employee sends reports to another employee.
+	
+	
+	- SELECT emp.name, report.name FROM employees AS emp
+	  INNER JOIN employees AS report
+	  ON emp.emp_id = report.report_id;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> Find all the pairs of films that have the same length.
+
+   table: film
+   columns: film_id, title, length
+
+
+	- SELECT f1.title, f2.title, f1.length FROM film AS f1
+	  INNER JOIN film AS f2
+	  ON f1.film_id != f2.film_id
+	     AND f1.length = f2.length;
+		 
+		 
+		 
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+>> Creating databases and tables
+
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> Data Types
+
+
+
+>> https://www.postgresql.org/docs/current/datatype.html
+
+>> when creating a table we'll have to choose what data type each column should hold.
+
+
+
+>> The main Data Types are
+	- Boolean
+		True or False
+	- Character
+		char, varchar, text
+	- Numeric
+		integer or floating-point number
+	- Temporal
+		date, time, timestamp (with or without timezone), and interval
+		
+	- UUID 
+		Universally Unique Identifiers
+	- Array
+		stores an array of strings, numbers, etc.
+	- JSON
+	- Hstore key-value pair
+	- Special types such as network address and geometric data.
+	
+	- SERIAL
+	
+	
+	
+	
+>> For example, it's recommended to store "phone number" as a text based data type due to a variety of issues:
+	- No arithmetics performed
+	- Leading zeros could cause issues, 7 and 07 treated same numerically, but are not the same phone number.
+	
+	
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+>> Primary Keys and Foreign Keys
+
+
+
+
+
+>> A primary key is a column or a group of columns used to identify a row uniquely in a table.
+   unique non-null column
+		- unique: means it has to be distinct for every row.
+		- non-null: means there must be an entry there for the primary key.
+		
+		
+>> A foreign key is a field or group of fields in a table that uniquely identifies a row in another table.
+
+   A foreign key is defined in a table that references to the primary key of the other table.
+
+   The table that contains the foreign key is called referencing table or child table.
+
+   The table to which the foreign key references is called referenced table or parent table.
+
+   A table can have multiple foreign keys depending on its relationships with other tables.
+   
+   They can be repeated.
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> For example,
+
+	"payment" table:
+		"payment_id" - a primary key
+        "customer_id" - a foreign key since it references the "customer" table's primary key
+
+
+>> So foreign keys, the reason they're foreign keys is they're a reference to a primary key in another table.		
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+
+>> The ways to check for Primary and Foreign Keys
+
+
+
+
+
+>> And pgadmin won't alert you directly in a simple query call whether or not this is a foreign key.
+   It'll only do that for the primary key.
+   
+>> When creating tables and defining columns, we can use constraints to define columns as being a primary key, or attaching a foreign key relationship to another table.
+
+>> Now, if something is a foreign key, that is technically a constraint on that particular column.
+
+
+
+	1) table: Constraints:
+		The golden key symbol is the primary key. (_pkey)
+	    Little kind of dual key symbol is the foreign key. (_fkey)
+	   
+	     
+	2) table: Constraints: select the foreign key: Dependencies tab
+	
+	
+	3) table: Constraints: select the foreign key and right click: Properties: Columns tab
+	
+	
+	
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+>> Constraints
+
+
+
+
+
+>> They are used to prevent invalid data from being entered into the database.
+
+
+
+>> Constraints can generally be divided into two main categories:
+	> Column Constraints
+	> Table Constraints
+	
+	
+	
+>> The most common Column Constraints used:
+
+	- NOT NULL constraint
+		Ensures that a column cannot have NULL value.
+		
+	- UNIQUE constraint
+		Ensures that all values in a column are different or distinct.
+		
+	- PRIMARY Key
+		Uniquely identifies each row/record in a database table.
+		
+	- FOREIGN Key
+		Constrains data based on columns in other tables.
+	
+	- CHECK constraint
+		Ensures that all values in a column satisfy certain conditions.
+		
+	- EXCLUSION constraint
+		Ensures that if any two rows are compared on the specified column or expression using the specified operator, not all of these comparisons will return TRUE.
+
+
+
+>> Table Constrains
+
+	- CHECK (condition)
+		to check a condition when inserting or updating data.
+		
+	- REFERENCES
+		to constrain the value stored in the column that must exist in a column in another table. It is a short form for creating foreign key constraint. 
+		
+	- UNIQUE (column_list)
+		forces the values stored in these columns listed inside the parentheses to be unique. It's going to have to be unique within multiple columns.
+		
+	- PRIMARY Key (column_list)
+		allows you to define the primary key that consists of multiple columns.
+		
+		
+		
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+>> CREATE TABLE
+
+
+
+
+
+
+>> Full General Syntax
+
+	- CREATE TABLE table_name(
+		column_name TYPE column_constraint,
+		column_name TYPE column_constraint,
+		table_constraint table_constraint
+	  ) INHERITS existing_table_name;
+	  
+			-- in case you have some sort of relationship to another table, you can inherit from an existing table.
+			
+			
+
+
+>> Typically what you're going to do first is you're going to choose a column to be a primary key.
+
+>> !!! Especially with PostgreSQL in case of the primary key, the type should be SERIAL.
+
+
+
+
+
+>> SERIAL (data type)
+	
+	- autoincrementing integer
+	- In PostgreSQL, a sequence is a special kind of database object that generates a sequence of integers.
+	- A sequence is often used as the primary key column in a table.
+	- This is perfect for a primary key because it logs unique integer entries for you automatically upon insertion.
+	- if a row is later removed, the column with the SERIAL data type will NOT adjust, marking the fact that a row was removed from the sequence.
+	
+>> to change the starting value of SERIAL in PostgreSQL
+   
+   If you created the table "product" with an "id" column, then the sequence is not simply called product, 
+   but rather product_id_seq (that is, ${table}_${column}_seq).
+	
+	
+	- ALTER SEQUENCE product_id_seq RESTART WITH value;
+	
+	
+>> the same in MySQL
+	
+	- ALTER TABLE table_name AUTO_INCREMENT = value;
+	
+	
+	
+	
+	
+>> Example
+	
+	- CREATE TABLE players(
+		player_id SERIAL PRIMARY KEY,
+		age SMALLINT NOT NULL);
+		
+	
+	- CREATE TABLE account(
+		user_id SERIAL PRIMARY KEY,
+		username VARCHAR(50) UNIQUE NOT NULL,
+		"password" VARCHAR(50) NOT NULL,
+		email VARCHAR(250) UNIQUE NOT NULL,
+		created_on TIMESTAMP NOT NULL,
+		last_login TIMESTAMP);
+		
+		
+>> VARCHAR(50) - variable character - this could be a limit of, for instance, no more than 50 characters inside of the username string.
+
+
+>> !!! Keep in mind, though, you can only run this one time.
+   When clicking execute again, the error says <Error: relation "account" already exists>, in order not to accidentally create the table "account" again 
+   and to overwrite the entire table.
+   
+   
+_____________________________________________________________________________________________________________________________________________
+
+
+
+	- CREATE TABLE job(
+		job_id SERIAL PRIMARY KEY,
+		job_name VARCHAR(200) UNIQUE NOT NULL
+	  );
+	
+	
+	
+>> Now let's create a table that references both the "account" and the "job" tables (to see how to actually reference a foreign key).
+   Basically, it's going to be an intermediary table that connects someone's account to their specific job and when they were hired for that job.
+	
+	- CREATE TABLE account_job(
+		user_id INTEGER REFERENCES account(user_id),
+		job_id INTEGER REFERENCES job(job_id),
+		hire_date TIMESTAMP);
+		
+
+
+>> syntax
+
+	column_name INTEGER REFERENCES table_name(column_name)
+		
+   
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+>> INSERT INTO
+
+
+
+
+
+>> allows to add in rows to a table.
+
+>> General syntax
+	
+	- INSERT INTO table(column1, column2,...)
+	  VALUES
+		(value1, value2, ...),
+		(value3, value4, ...),...;
+		
+
+
+>> Syntax for inserting values from another table
+
+	- INSERT INTO table(column1, column2,...)
+	  SELECT column1, column2,...
+	  FROM another_table
+	  WHERE condition;
+	  
+	  
+>> !!! So something to keep in mind (especially for the previous statement of inserting from another table), the inserted row values must match up 
+       for the table, including constraints.
+	   
+>> !!! SERIAL columns do not need to be provided a value.
+
+
+>> !!! even failed INSERT INTO attempts can burn SERIAL id.
+_____________________________________________________________________________________________________________________________________________
+
+
+	- INSERT INTO account(username, "password", email, created_on)
+	  VALUES
+		('Jose', 'password', 'jose@mail.com', CURRENT_TIMESTAMP);
+		
+		
+	- INSERT INTO job(job_name)
+	  VALUES
+		('Astronaut'),
+		('President');
+		
+		-- we do not need job_id column as it is of SERIAL type.
+		
+		
+		-- now inserting into the table that has foreign keys
+	
+	- INSERT INTO account_job(user_id, job_id, hire_date)
+	  VALUES 
+		(1, 1, CURRENT_TIMESTAMP)
+		
+		
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+>> In order to see the written scripts:
+	
+	right click on the table name -> Scripts -> choose the script that you wanna watch
+    otherwise, you might want to save your script
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+>> UPDATE
+
+
+
+
+
+
+>> The UPDATE keyword allows for the changing of values of the columns in a table.
+
+>> syntax
+
+	- UPDATE table
+	  SET column1 = value1,
+	      column2 = value2,...
+	  WHERE condition;
+	  
+
+_____________________________________________________________________________________________________________________________________________
+
+
+	- UPDATE account 
+	  SET last_login = CURRENT_TIMESTAMP
+	  WHERE last_login IS NULL;
+	  
+	  
+
+>> Reset everything without WHERE condition, to just overwrite and update all the "last_login" entries
+	
+	- UPDATE account
+	  SET last_login = CURRENT_TIMESTAMP;
+	  
+
+>> in case of multiple UPDATEs	  
+	
+	- UPDATE COMPANY 
+	  SET ADDRESS = 'Texas', SALARY=20000
+	  WHERE condition;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> Set based on another column ("created_on" is another column inside the same table "account")
+
+	- UPDATE account
+	  SET last_login = created_on;
+	  
+
+I could then also add in a WHERE condition on top of this.
+		
+		
+_____________________________________________________________________________________________________________________________________________
+
+
+
+>> Using another table's values (UPDATE join)
+
+
+
+>> syntax
+
+	- UPDATE TableA
+	  SET original_col = TableB.new_col
+	  FROM TableB
+	  WHERE TableA.id = TableB.id;
+	  
+
+(FROM TableB - it does not do the same thing as FROM, it merely tells you which table to look at in case you have two or more columns
+ with the same names in tables after a join)	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> To return the affected rows 
+
+
+   (if you just run the UPDATE command, you don't see any results.
+   But if you do want to see particular columns that were affected, then)
+   
+   
+
+
+>> syntax
+
+	- UPDATE account
+	  SET last_login = created_on
+	  RETURNING account_id, last_login;
+	  
+	  
+	- UPDATE account
+	  SET last_login = CURRENT_TIMESTAMP
+	  RETURNING email, created_on, last_login;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> to set the value of the column to NULL
+
+	- UPDATE account
+	  SET last_login = NULL
+	  WHERE condition;
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> table: "account_job"
+   columns: "user_id", "job_id", "hire_date"
+   
+   table: "account"
+   columns: "user_id", "username", "created_on"
+   
+   
+	- UPDATE account_job
+	  SET hire_date = account.created_on
+	  FROM account
+	  WHERE account_job.user_id = account.user_id;
+	  
+
+_____________________________________________________________________________________________________________________________________________
+	  
+
+>> WHERE column_name IS NULL
+	That is how the syntax works. NULL represents missing value and in sql you can't just compare it with "= NULL". "IS NULL" is the correct syntax.
+	
+
+_____________________________________________________________________________________________________________________________________________
+
+
+	- SELECT col1, col2 FROM table
+	  WHERE col1 IN (subquery1) AND WHERE col2 IN (subquery2);
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+>> DELETE
+
+
+
+
+>> to remove rows from a table
+	
+	- DELETE FROM table
+	  WHERE row_id = 1;
+	
+_____________________________________________________________________________________________________________________________________________
+
+
+>> we can delete rows based on their presence in other tables
+
+	- DELETE FROM tableA
+	  USING tableB
+	  WHERE tableA.id = tableB.id;
+
+
+	Essentially where there happens to be a match in between these two tables, then go ahead and delete those rows from tableA.
+	
+_____________________________________________________________________________________________________________________________________________
+	
+	
+>> we can delete all rows from a table
+
+	- DELETE FROM table;
+	
+	
+_____________________________________________________________________________________________________________________________________________
+
+
+>> RETURNING
+
+
+>> Similar to the UPDATE command, you can also add in a RETURNING call to return rows that were removed.
+
+
+	- DELETE FROM job
+	  WHERE job_name = 'cowboy'
+	  RETURNING *;
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+>> ALTER
+
+
+
+
+
+>> The ALTER clause allows for changes to an existing table structure, such as
+	- adding, dropping or renaming columns
+	- changing a column's data type
+	- setting DEFAULT values for a column
+	- adding CHECK constraints
+	- rename table
+
+
+>> General syntax
+
+	- ALTER TABLE table_name 
+	  action;
+	
+	
+_____________________________________________________________________________________________________________________________________________
+
+
+>> Adding columns
+
+	- ALTER TABLE table_name
+	  ADD COLUMN new_col TYPE;
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> Removing columns
+
+	- ALTER TABLE table_name
+	  DROP COLUMN column_name;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+
+>> ALTER constraints 
+
+
+
+
+
+
+>> to set a default value
+
+	- ALTER TABLE table_name
+	  ALTER COLUMN col_name
+	  SET DEFAULT value;
+
+
+
+>> to drop the default value
+
+	- ALTER TABLE table_name
+	  ALTER COLUMN column_name
+	  DROP DEFAULT;
+	  
+	  
+	  
+>> setting a NOT NULL constraint
+
+	- ALTER TABLE table_name
+	  ALTER COLUMN col_name
+	  SET NOT NULL;
+	  
+	  
+	  
+>> dropping a NOT NULL constraint
+	
+	- ALTER TABLE table_name
+	  ALTER COLUMN col_name
+	  DROP NOT NULL;
+	  
+_____________________________________________________________________________________________________________________________________________
+	  
+
+>> to ADD UNIQUE CONSTRAINT in PostgreSQL
+
+	- ALTER TABLE table_name
+	  ADD CONSTRAINT constraint_name UNIQUE(col_name);
+	  
+
+		-- write the “ADD CONSTRAINT” clause with a UNIQUE constraint and specify the constraint's name, such as “running”. For example,
+	- ALTER TABLE college
+	  ADD CONSTRAINT running UNIQUE(teach_id);
+_____________________________________________________________________________________________________________________________________________
+
+
+>> to DROP UNIQUE constraint
+
+	- ALTER TABLE table_name
+	  DROP CONSTRAINT constraint_name;
+	  
+	- ALTER TABLE college
+	  DROP CONSTRAINT running;
+
+
+_____________________________________________________________________________________________________________________________________________
+
+	
+	- CREATE TABLE information(
+		info_id SERIAL PRIMARY KEY,
+		title VARCHAR(500) NOT NULL,
+		person VARCHAR(50) NOT NULL UNIQUE);
+		
+
+person - to whom the information is related to
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> to rename the table
+
+	- ALTER TABLE information
+	  RENAME TO new_info;
+	  
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> to rename just a column
+
+	- ALTER TABLE new_info
+	  RENAME COLUMN person TO people; 
+	
+
+_____________________________________________________________________________________________________________________________________________	
+
+
+>> To change the types of two existing columns in one operation:
+
+	- ALTER TABLE distributors
+	  ALTER COLUMN address 
+_____________________________________________________________________________________________________________________________________________
+
+
+>> https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-change-column-type/
+
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+>> DROP
+
+
+
+
+
+>> DROP allows us to completely remove a column from a table.
+   In PostgreSQL, this also automatically removes all of its indexes and constraints involving the column.
+   
+>> However, it will not remove columns used in views, triggers, or stored procedures without the additional CASCADE clause.
+
+
+
+
+>> General syntax
+
+	- ALTER TABLE table_name
+	  DROP COLUMN column_name;
+	  
+	  
+>> to remove all dependencies
+
+	- ALTER TABLE table_name
+	  DROP COLUMN column_name CASCADE;
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> if you try to drop a column that does not exist, you'll get an error in PostgreSQL.
+
+	- ALTER TABLE table_name
+	  DROP COLUMN IF EXISTS column_name;
+	  
+	  
+!!! It's really common to add in an IF EXISTS keyword clause before the column name in order to avoid the error.
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> Drop multiple columns
+
+	- ALTER TABLE table_name
+	  DROP COLUMN col_one,
+	  DROP COLUMN col_two;
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> https://www.postgresql.org/docs/8.2/sql-droptable.html
+
+	- DROP TABLE table_name;
+	
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+>> CHECK
+
+
+
+
+
+
+>> The CHECK constraint allows us to create more customized constraints that adhere (придерживаться) to a certain condition.
+
+>> Such as making sure all inserted integer values fall below a certain threshold.
+
+
+
+>> General syntax
+
+	- CREATE TABLE example(
+		ex_id SERIAL PRIMARY KEY,
+		age SMALLINT CHECK(age > 21),
+		parent_age SMALLINT CHECK (parent_age > age)
+		);
+		
+		
+		-- otherwise, it will produce an error  
+		
+
+_____________________________________________________________________________________________________________________________________________
+
+
+	- CREATE TABLE employees(
+		emp_id SERIAL PRIMARY KEY,
+		first_name VARCHAR(50) NOT NULL,
+		last_name VARCHAR(50) NOT NULL,
+		birthdate DATE CHECK(birthdate > '1900-01-01'),
+		hire_date DATE CHECK(hire_date > birthdate),
+		salary INTEGER CHECK(salary > 0)
+		);
+		
+		
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+>> Conditional Expressions and Procedures
+
+
+
+
+	-- These keywords and functions will allow us to add logic to our commands and workflows in SQL.
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+>> CASE 
+
+
+
+
+
+
+>> We can use the CASE statement to only execute SQL code when certain conditions are met.
+   This is very similar to IF/ELSE statements in other programming languages.
+   
+   
+>> there are two main ways to use a CASE statement, either a general CASE or a CASE expression.
+
+
+1) general CASE syntax
+
+	CASE
+	  WHEN condition1 THEN result1
+	  WHEN condition2 THEN result2
+	  ELSE some_other_result
+	END
+	
+	
+_____________________________________________________________________________________________________________________________________________
+
+
+>> example: "test" table, "a" column
+
+	_______
+	|__a__|
+	|__1__|
+	|__2__|
+	
+	
+	
+	
+	- SELECT a,
+		CASE
+			WHEN a=1 THEN 'one'
+			WHEN a=2 THEN 'two'
+			ELSE 'other'
+		END
+	 FROM test;
+	 
+	 
+	 
+	 
+		-- and the result will be 2 columns
+	
+		   1   |   'one'
+		   2   |   'two'
+	
+
+
+>> So the way this works is we're basically inserting this general CASE statement inside of the SELECT call almost as if it was another column.
+
+>> The column is by default called "case", but you can always use an alias to name it something else.
+
+	- SELECT a,
+	    CASE 
+			WHEN a=1 THEN 'one'
+			WHEN a=2 THEN 'two'
+			ELSE 'other' 
+		END AS label
+	  FROM test
+	  ORDER BY a;
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+>> CASE expression syntax
+
+
+	CASE expression
+	  WHEN value1 THEN result1
+	  WHEN value2 THEN result2
+	  ELSE some_other_result
+	END
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+	- SELECT a, 
+	    CASE a
+			WHEN 1 THEN 'one'
+			WHEN 2 THEN 'two'
+			ELSE 'other'
+		END
+	  FROM test;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> general syntax is more flexible. CASE expression syntax essentially just checks for equal or equality to the provided expression.
+
+_____________________________________________________________________________________________________________________________________________
+
+
+	- SELECT customer_id,
+		CASE
+			WHEN (customer_id < 100) THEN 'Premium'
+			WHEN (customer_id BETWEEN 100 AND 200) THEN 'Plus'
+			ELSE 'Normal'
+		END AS customer_class
+	  FROM customer;
+	  
+	  
+
+
+>> to add this new column to our already existing "customer" table, let's first add that column 
+	
+	- ALTER TABLE customer
+	  ADD COLUMN customer_class VARCHAR(30);
+	  
+	  
+!!! Since I'm working on the same table I should be using UPDATE instead of INSERT INTO. INSERT INTO creates new rows in the table.
+    if you are trying to insert, you would need to provide values for the other columns as well.
+!!! And it will be update join (based on another table)
+
+	- UPDATE customer 
+	  SET customer_class = subquery.classification
+      FROM (SELECT customer_id, 
+                CASE 
+					WHEN customer_id < 100 THEN 'Premium'
+					WHEN customer_id BETWEEN 100 AND 200 THEN 'Plus'
+					ELSE 'Normal'
+				END AS classification
+			FROM customer) AS subquery
+	  WHERE subquery.customer_id = customer.customer_id;
+	
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+	- SELECT customer_id, 
+		CASE customer_id
+			WHEN 2 THEN 'Winner'
+			WHEN 5 THEN 'Second Place'
+			ELSE 'Normal' 
+		END AS ruffle_results
+	  FROM customer;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> you can actually begin to then perform operations on the results of these CASE statements.
+
+   We know there's different "rental rate"s in "film" table. Let's make some categories for rental rates and then let's also figure out 
+   how many we have per category.
+	
+		-- to see films that have 0.99 rental_rate
+		
+	- SELECT rental_rate,
+		CASE rental_rate 
+			WHEN 0.99 THEN 1
+			ELSE 0
+		END
+	  FROM film;
+	  
+	  
+	  
+>> So now I can actually take the SUM of this "case" column to figure out exactly how many $0.99 movies I have.
+
+	- SELECT 
+		SUM(CASE rental_rate
+				WHEN 0.99 THEN 1
+				ELSE 0
+			END) AS number_of_bargains
+	  FROM film;
+
+
+>> the same result we can get
+
+	- SELECT COUNT(rental_rate) FROM film
+	  WHERE rental_rate = 0.99;
+	  
+
+	- SELECT rental_rate, COUNT(rental_rate) FROM film
+	  GROUP BY rental_rate;
+	  
+	  
+
+
+>> I'm also going to take the SUM of, let's say, movies when they're $2.99.
+
+	- SELECT
+		SUM(CASE rental_rate
+				WHEN 0.99 THEN 1
+				ELSE 0
+			END) AS bargains,
+		SUM(CASE rental_rate
+				WHEN 2.99 THEN 1
+				ELSE 0
+			END) AS regular
+	  FROM film;
+	  
+
+
+
+>> So it allows me again to call functions on the results of a CASE column.
+
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+>> COALESCE (ˌkōəˈles - объединяться, соединяться)
+
+
+
+
+
+
+
+
+>> The COALESCE function accepts an unlimited number of arguments.
+   It returns the first argument that is NOT NULL.
+   If all arguments are NULL, then the COALESCE function will return NULL.
+
+>> you provide in any number of arguments in order that you want them to be evaluated in.
+   And typically these are going to be column names.
+   
+   
+   COALESCE(arg_1, arg_2, ..., arg_n)
+   
+_____________________________________________________________________________________________________________________________________________
+
+
+>> for example
+
+	- SELECT COALESCE(1, 2);
+		outputt: 1
+		
+	- SELECT COALESCE(NULL, 2, 3);
+		output: 2
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> The COALESCE function becomes useful when querying a table that contains null values, and perhaps you're trying to perform some sort of
+   operation on it, which you can't actually perform with a null value.
+   So in case it's null, you want to substitute it with another value.
+   
+   
+   
+Example:
+
+	Table of Products (Price and Discount in $s)
+	
+	"Item":       'A', 'B', 'C' 
+	"Price":      100, 300, 200
+	"Discount":   20,  null, 10 
+	
+	
+	So technically item B does not have a discount. So it's a null value there.
+	But if we're trying to perform mathematical operations, that is technically a discount of zero.
+	
+	
+	Let's imagine we're trying to answer the question, what is the final price.
+	
+		- SELECT Item, (Price - Discount) AS final FROM Products;	
+			-- item B for final price is null (integer - null = null)
+	
+	
+		- SELECT item, (Price - COALESCE(Discount, 0)) AS final FROM table;
+		
+		
+		
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+>> CAST
+
+
+
+
+
+
+
+>> !!! Temporarily. It is only used to reflect on the output data but not changing on the original table itself.
+
+>> The CAST operator lets you convert from one data type into another.
+
+>> !!! Keep in mind not every instance of a data type can be CAST to another data type, it must be reasonable to convert the data,
+   for example, '5' to an integer will work, but 'five' to an integer will not.
+   
+   
+
+>> So there are two main ways to actually perform a cast operation.
+
+	1) syntax for CAST function
+		- SELECT CAST('5' AS INTEGER);
+		
+	2) PostgreSQL CAST operator
+		- SELECT '5'::INTEGER;
+		
+
+
+>> Keep in mind you can then use this in a SELECT query with a column name instead of a single instance.
+
+	- SELECT CAST(date AS TIMESTAMP) FROM table;
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> Let's imagine I want to figure out the actual character length of the inventory_id (it's integer now in the table).
+   So that's a little troublesome to do as an integer. However, it's really easy to do with a string.
+   
+   
+	- SELECT CHAR_LENGTH(CAST(inventory_id AS VARCHAR)) FROM rental;
+	
+	
+_____________________________________________________________________________________________________________________________________________
+
+
+>> The CAST function is used to run a query to temporarily alter the data type of a column. 
+   
+
+>> But what if I want to permanently change it - https://www.postgresqltutorial.com/postgresql-change-column-type/
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> how does cast work on null values?
+	
+	-- It wouldn't, NULL is a type. So it would just cast the rest of the non-null column.
+	
+	
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+>> NULLIF
+
+
+
+
+
+
+
+>> the NULLIF function takes in 2 inputs and returns NULL if both are equal, otherwise it returns the first argument passed.
+
+	NULLIF(arg1, arg2)
+	
+
+>> For example:
+
+	- SELECT NULLIF(10, 10); 
+		-- returns NULL
+	
+	- SELECT NULLIF(10, 12);
+		-- returns 10
+		
+		
+_____________________________________________________________________________________________________________________________________________
+
+
+>> This becomes very useful in cases where a NULL value would cause an error or an unwanted result.
+
+
+Example:
+	Given this table calculate the ratio of Department A to Department B.
+	
+	"Name",     "Department"
+	______      ____________
+	'Lauren'        'A'
+	'Vinton'        'A'
+	'Claire'        'B'
+	
+	
+	We can see easily the ratio of A to B is 2:1 or 200%.
+	
+	
+	- CREATE TABLE depts(
+				first_name VARCHAR(50),
+				department VARCHAR(50)
+					);
+					
+					
+	- INSERT INTO depts(first_name, department)
+	  VALUES 
+			('Lauren', 'A'),
+			('Vinton', 'A'),
+			('Claire', 'B');
+			
+
+
+>> to get the ratio of A to B (*)
+		
+	- SELECT 
+		SUM(CASE 
+				WHEN department = 'A' THEN 1
+				ELSE 0
+			END)/
+		SUM(CASE
+				WHEN department = 'B' THEN 1
+				ELSE 0
+			END) AS department_ratio
+	  FROM depts;
+	  
+		-- result: 2
+		
+		
+>> what happens if there actually are no more people in Department B.
+
+	- DELETE FROM depts
+	  WHERE department = 'B';
+	
+
+(*) if we run again this query, we get 'ERROR:  division by zero'.
+    we can use the NULLIF functionality in order to make sure that instead of getting an error we just get back a null.
+	
+	A null is a good indication that there essentially is no one in one of these departments instead of having a full error, 
+	in which case it's not really clear what's happening.
+	
+	
+	
+	- SELECT
+		SUM(CASE
+				WHEN department = 'A' THEN 1
+				ELSE 0
+			END)/
+		NULLIF(
+			SUM(
+				CASE
+					WHEN department = 'B' THEN 1
+					ELSE 0
+				END), 0) AS department_ratio
+	  FROM depts;
+		
+
+			--  I want to return a null if this entire sum happens to be zero. So if both arguments match (0, 0) then NULLIF will return NULL.
+			    So that simply returns a null instead of a division by zero error.
+
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+>> Views
+
+
+
+
+
+
+
+
+>> Often there are specific combinations of tables and conditions that you find yourself using quite often for a project.
+
+   So instead of having to perform that same query again and again as a starting point and having to rewrite that syntax manually, what you can
+   do is you can create a view that will allow you to quickly see the query, which is a simple call as if it were a table that already existed.
+   
+
+
+>> Let's say you're working on some project and writing reports, and you notice that there's two tables that you're always joining together.
+   So you're always having to write this query of selecting these columns from these tables, joined for each other and so on.
+   Now, instead of having to rewrite that same query over and over again, what you can do is you can transform that into a view and just say
+	
+	- SELECT * FROM view;
+	
+
+>> A view is a database object that is of a stored query.
+
+>> A view can be accessed as a virtual table in PostgreSQL.
+
+>> !!! Notice that a view does not store data physically, it simply stores the query.
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+>> Let's imagine we're doing a project within our DVD rental store database where we need to constantly be asking information about the 
+   customer names and their addresses.
+   
+   
+	- SELECT first_name, last_name, address FROM customer
+	  INNER JOIN address
+	  ON customer.address_id = address.address_id;
+	  
+
+>> So it might be useful to save or store this query as a view instead of having to write this over and over again.
+   Just add before the query
+	
+	CREATE VIEW view_name AS 
+	the query...
+	
+	
+	
+	
+	- CREATE VIEW customer_info AS
+	  SELECT first_name, last_name, address FROM customer
+	  INNER JOIN address
+	  ON customer.address_id = address.address_id;
+
+
+And now I can just say
+
+	- SELECT * FROM customer_info;
+	
+	
+_____________________________________________________________________________________________________________________________________________
+
+
+>> If you find yourself needing to alter a view and basically change the underlying query information from it, then you simply call the 
+   CREATE OR REPLACE command. Let's also add the "district" column.
+   
+   
+	- CREATE OR REPLACE VIEW customer_info AS
+	  SELECT first_name, last_name, address, district FROM customer
+	  INNER JOIN address
+	  ON customer.address_id = address.address_id;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________
+
+
+>> If you ever want to remove a PostgreSQL view,
+
+	- DROP VIEW IF EXISTS customer_info;
+	
+		-- You can also check if it exists first to prevent errors.
+		
+		
+_____________________________________________________________________________________________________________________________________________
+
+
+>> To rename the view
+
+	- ALTER VIEW customer_info RENAME TO c_info;
+	
+	
+_____________________________________________________________________________________________________________________________________________
+
+
+>> If we created a VIEW and later on we added new values within those requested information, will the created VIEW automatically update 
+   or do we have to create a new one?
+   
+   -- VIEW does not actually store the data, so when new data is inserted in the tables, they will be reflected when you run the queries through the VIEW.
+   
+   
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+>> Import and Export
+
+
+
+
+
+
+
+>> It allows us to import data from a .csv file to an already existing table.
+
+>> https://stackoverflow.com/questions/2987433/how-to-import-csv-file-data-into-a-postgresql-table
+
+>> https://www.enterprisedb.com/postgres-tutorials/how-import-and-export-data-using-csv-files-postgresql
+
+>> https://stackoverflow.com/questions/21018256/can-i-automatically-create-a-table-in-postgresql-from-a-csv-file-with-headers
+
+
+
+
+
+>> !!! VERY IMPORTANT NOTE
+
+	-- the IMPORT command DOES NOT create a table for you.
+	
+	-- It assumes a table is already created.
+	
+	
+	
+	
+>> now I'm on Windows, so I can just look up the Properties to get the full location.
+
+
+_____________________________________________________________________________________________________________________________________________
+
+
+	- CREATE TABLE simple(
+		a INTEGER,
+		b INTEGER,
+		c INTEGER
+		);
+		
+		
+>> right click on the table itself -> Import/Export...
+
+
+>> you can choose which columns you want to import or export.
+
+
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________
+		
+		
+

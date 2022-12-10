@@ -1,0 +1,501 @@
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> What customer has the highest average spent per transaction?
+	
+	- SELECT customer_id, AVG(amount) FROM payment
+	  GROUP BY customer_id
+	  ORDER BY AVG(amount) DESC
+	  LIMIT 1;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> What customer (first_name, last_name) has the highest average spent per transaction?
+
+	- SELECT customer.customer_id, first_name, last_name, avg_spent FROM
+		(SELECT customer_id, AVG(amount) AS avg_spent FROM payment
+		GROUP BY customer_id
+		ORDER BY AVG(amount) DESC
+		LIMIT 1) AS new
+	  INNER JOIN customer
+	  ON customer.customer_id = new.customer_id
+
+
+_____________________________________________________________________________________________________________________________________________________
+
+>> How many customers have spent over 100$ in total?
+
+	- SELECT COUNT(*) FROM 
+	  (SELECT customer_id FROM payment
+	  GROUP BY customer_id
+	  HAVING SUM(amount) > 100) AS foo;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> How to calculate average amount of total amounts spent by top 5 customers?
+ 
+	- SELECT ROUND(AVG(total_spent), 3) FROM 
+	  (SELECT SUM(amount) AS total_spent FROM payment
+       GROUP BY customer_id 
+	   ORDER BY SUM(amount) DESC
+	   LIMIT 5) AS foo;
+	   
+	   
+_____________________________________________________________________________________________________________________________________________________
+
+
+	- SELECT * FROM customer
+	  INNER JOIN actor
+	  ON customer.first_name = actor.first_name AND customer.last_name = actor.last_name;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Let's imagine that California sales tax law has changed, and we need to alert our customers to this through email.
+   So the question is, what are the emails of the customers who live in California?
+   
+	- SELECT email, district FROM customer
+      INNER JOIN address
+      ON customer.address_id = address.address_id
+      WHERE district = 'California';	
+
+		-- INNER JOIN as we're interested where I have entries for both the customer and the address.
+		-- INNER join would be more appropriate as we only want customers who have an address.
+		
+_____________________________________________________________________________________________________________________________________________________	  
+   
+   
+>> which movies has Nick Wahlberg been in?
+	
+	- SELECT title, first_name, last_name FROM
+       (SELECT first_name, last_name, film_id FROM film_actor
+        INNER JOIN actor
+        ON actor.actor_id = film_actor.actor_id) as newTable
+      INNER JOIN film
+      ON film.film_id = newTable.film_id
+      WHERE first_name = 'Nick' AND last_name = 'Wahlberg';
+	  
+	or
+	
+	- SELECT title, first_name, last_name FROM actor
+	  INNER JOIN film_actor
+	  ON actor.actor_id = film_actor.actor_id
+      INNER JOIN film
+	  ON film.film_id = film_actor.film_id
+	  WHERE first_name = 'Nick' AND last_name = 'Wahlberg'
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+   
+   
+	- SELECT EXTRACT(MONTH FROM AGE(payment_date)) FROM payment;
+	
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> to get the number of transactions per quarter 
+ 
+	- SELECT EXTRACT(QUARTER FROM payment_date), COUNT(*) FROM payment
+	  GROUP BY EXTRACT(QUARTER FROM payment_date);
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+   
+
+>> to select a certain percentage of records from a table, for example 20% of all records but RANDOMLY.
+
+	- SELECT * FROM payment 
+	  ORDER BY random() 
+      LIMIT (SELECT COUNT(*) * 0.2 FROM payment);
+
+
+_____________________________________________________________________________________________________________________________________________________
+
+
+	- SELECT EXTRACT(MONTH FROM payment_date), SUM(amount) AS "total amount" FROM payment
+	  GROUP BY EXTRACT(MONTH FROM payment_date);
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+	- SELECT EXTRACT(YEAR FROM TIMESTAMP '2022-11-19 04:00:00')
+	
+	
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> During which months did payments occur?
+	
+	- SELECT DISTINCT EXTRACT(MONTH FROM payment_date) FROM payment;
+		-- the results will be integers
+	
+		-- to return back the full month name
+	- SELECT DISTINCT TO_CHAR(payment_date, 'month') FROM payment;
+	
+	
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> How many payments occured on a Monday?
+	
+	- SELECT COUNT(*) FROM payment
+	  WHERE TO_CHAR(payment_date, 'Day') = 'Monday   ';
+	  
+		-- gotten a lot of questions of why TO_CHAR "doesn't work" for one of the assessment questions. It actually does work, but you need 
+		   to realize certain codes are "blank padded to 9 characters", which means instead of returning 'Monday' it returns 'Monday   ' 
+		   with extra spaces to fill up at least 9 spaces.
+		   
+	- SELECT COUNT(*) FROM payment
+	  WHERE TO_CHAR(payment_date, 'Day') ILIKE '%monday%';
+	  
+	  
+	- SELECT COUNT(*) FROM payment
+	  WHERE EXTRACT(dow FROM payment_date) = 1;
+	  
+		-- dow (day of week)
+		-- 0=Sunday, 1=Monday, 2=Tuesday, ... 6=Saturday
+		
+		
+	- SELECT COUNT(*) FROM payment
+	  WHERE TO_CHAR(payment_date, 'FMDay') = 'Monday';
+	  
+		-- the FM modifier which removes leading zeros and padding
+	  
+
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Instead of showing 38.44 I would like to be able to show 38.44% (the % sign)
+	
+	- SELECT 0.1 * replacement_cost || '%' FROM film;
+	
+		-- just keep in mind they won't be numerics anymore
+_____________________________________________________________________________________________________________________________________________________
+	
+
+>> splitting "jared.ely@sakilacustomer.org" to get two columns` first_name, last_name (both capitalized) 
+
+	- SELECT INITCAP(SPLIT_PART(SPLIT_PART(email, '@', 1), '.', 1)), INITCAP(SPLIT_PART(SPLIT_PART(email, '@', 1), '.', 2))  FROM customer;
+
+
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Find order amounts per days of week (with actual day names) sorted in descending order. 
+
+	- SELECT TO_CHAR(OrderDate, 'FMDay'), COUNT(*) FROM orders
+	  GROUP BY TO_CHAR(OrderDate, 'FMDay')
+	  ORDER BY COUNT(*) DESC;
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Display the unique values of DEPARTMENT from EMPLOYEE table and prints its length.
+
+	- SELECT department, LENGTH(department) FROM employee
+	  GROUP BY department;
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Why do we need LOWER() or UPPER()?
+
+	- That is totally case-by-case basis. E.g. if you want to compare two values, it is better to make sure they are of the same case, 
+	so converting both to 'upper' or lower' would be helpful.
+
+
+_____________________________________________________________________________________________________________________________________________________
+
+
+	- SELECT film_id FROM rental
+	  INNER JOIN inventory
+	  ON inventory.inventory_id = rental.inventory_id
+	  WHERE return_date BETWEEN '2005-05-29' AND '2005-05-30';
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________________
+
+
+
+
+
+Assessment Test 2 
+
+
+
+
+
+
+>> This database has 2 schemas: public and cd schema.
+   This means the queries for the FROM tables will have cd. in front of them, for ex:
+	
+	- SELECT * FROM cd.bookings;
+	
+	
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> How can you produce a list of facilities that charge a fee to members, and that fee is less than 1/50th of the monthly maintenance cost? 
+
+
+!!! Keep in mind 
+	If the columns have integer types, PostgreSQL will use integer division. 
+	To get a floating point division, at least one of the arguments must be of float type.
+	https://datacomy.com/sql/postgresql/division/#:~:text=In%20PostgreSQL%2C%20the%20%2F%20operator%20stands,of%205%2F2%20is%202.
+	
+	
+	
+	- SELECT facid, "name", membercost, monthlymaintenance FROM cd.facilities
+	  WHERE membercost > 0 AND membercost < 1/50::float * monthlymaintenance;
+	  
+	  or
+	  
+	- SELECT facid, "name", membercost, monthlymaintenance FROM cd.facilities
+	  WHERE membercost > 0 AND membercost < 1/50.0 * monthlymaintenance;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> How can you produce a list of all facilities with the word 'Tennis' in their name?
+
+	- SELECT * FROM cd.facilities
+	  WHERE "name" ILIKE '%tennis%';
+	  
+'' - for strings
+"" - for columns	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> How can you produce an ordered list of the first 10 surnames in the members table? The list must not contain duplicates.
+
+	- SELECT DISTINCT surname FROM cd.members
+	  ORDER BY surname
+	  LIMIT 10;
+
+
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Produce a list of the total number of slots booked per facility in the month of September 2012.
+   Produce an output table consisting of facility id and slots, sorted by the number of slots.
+   
+	- SELECT facid, SUM(slots) AS "Total Slots" FROM cd.bookings
+	  WHERE EXTRACT(MONTH FROM starttime) = 9
+	  GROUP BY facid
+	  ORDER BY SUM(slots);
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Produce a list of facilities with more than 1000 slots booked. 
+   Produce an output table consisting of facility id and total slots, sorted by facility id.
+   
+	- SELECT facid, SUM(slots) AS "total_slots" FROM cd.bookings
+	  GROUP BY facid
+	  HAVING SUM(slots) > 1000
+	  ORDER BY facid;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> You'd like to get the signup date of your last member.
+	
+	- SELECT MAX(joindate) FROM cd.members;
+		
+	or 
+	
+	- SELECT joindate FROM cd.members
+	  ORDER BY joindate DESC
+	  LIMIT 1;
+
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Query a list of CITY names from STATION for cities that have an even ID number. Print the results in any order, but exclude duplicates from the answer.
+
+	- SELECT DISTINCT CITY FROM STATION
+	  WHERE ID % 2 = 0;
+	  
+		-- remainder %
+		
+
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Find the difference between the total number of CITY entries in the STATION table and the number of distinct CITY entries in the table.
+
+	- SELECT COUNT(CITY) - COUNT(DISTINCT CITY) FROM STATION;
+	
+	
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Query the two cities in STATION with the shortest and longest CITY names, as well as their respective lengths (i.e.: number of characters in the name). 
+   If there is more than one smallest or largest city, choose the one that comes first when ordered alphabetically.
+   
+   For example, CITY has four entries: DEF, ABC, PQRS and WXY.
+     ABC 3
+     PQRS 4
+	
+	
+	- SELECT city, LENGTH(city) FROM STATION
+      WHERE CITY =
+		(SELECT CITY FROM STATION
+			ORDER BY LENGTH(CITY), CITY
+			LIMIT 1)
+	  OR CITY =
+		(SELECT CITY FROM STATION
+			ORDER BY LENGTH(CITY) DESC,	CITY DESC                             
+			LIMIT 1);
+			
+			
+					!!!!! in case of ordering by multiple columns, you need to mention ASC, DESC for each of the columns.
+	
+	
+	or
+	
+	
+	- (SELECT city, LENGTH(city) FROM station
+	  ORDER BY LENGTH(city), city LIMIT 1)
+	  UNION
+	  (SELECT city, LENGTH(city) FROM station
+	  ORDER BY LENGTH(city) DESC, city DESC
+	  LIMIT 1);
+	  
+		-- mandatory with parenthesis
+
+
+
+_____________________________________________________________________________________________________________________________________________________		
+
+
+>> Query the list of CITY names starting with vowels (ձայնավոր) (i.e., a, e, i, o, or u) from STATION. Your result cannot contain duplicates.			
+
+	- SELECT DISTINCT CITY FROM STATION
+	  WHERE CITY REGEXP '^[aeiou]';
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Query the list of CITY names ending with vowels (a, e, i, o, u) from STATION. Your result cannot contain duplicates.
+
+	- SELECT DISTINCT CITY FROM STATION
+	  WHERE CITY REGEXP '[aeiou]$';
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Query the list of CITY names from STATION that do not start with vowels. Your result cannot contain duplicates.
+
+	- SELECT DISTINCT CITY FROM STATION
+	  WHERE CITY REGEXP '^[^aeiou]';
+
+
+	!!!! 
+	
+	^ means two different things. 
+		- If it is in the beginning of a regex then it means 'start of the string'.
+		- If ^ is the first character of a range, [^1-9A-F], it negates the range.
+		
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Query the list of CITY names from STATION that do not end with vowels. Your result cannot contain duplicates.
+
+	- SELECT DISTINCT CITY FROM STATION
+	  WHERE CITY REGEXP '[^aeiou]$';
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Query the Name of any student in STUDENTS who scored higher than 75 Marks. Order your output by the last three characters of each name. 
+   If two or more students both have names ending in the same last three characters (i.e.: Bobby, Robby, etc.), secondary sort them by ascending ID.
+
+- https://www.postgresqltutorial.com/postgresql-string-functions/postgresql-right/
+
+- The PostgreSQL RIGHT() function returns the last n characters in a string.
+
+- syntax 
+	RIGHT(string, n)
+	
+	- SELECT Name FROM STUDENTS
+	  WHERE Marks > 75
+	  ORDER BY RIGHT(Name, 3), ID;
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> Write a query identifying the type of each record in the TRIANGLES table using its three side lengths. Output one of the following statements for each record in the table:
+	"TRIANGLES" table:
+			"A", "B", "C" columns
+
+	Equilateral: It's a triangle with  sides of equal length.
+	Isosceles: It's a triangle with  sides of equal length.
+	Scalene: It's a triangle with  sides of differing lengths.
+	Not A Triangle: The given values of A, B, and C don't form a triangle.
+	
+	Եռանկյան յուրաքանչյուր կողմը փոքր է մյուս երկու կողմերի գումարից։
+	
+		
+		
+		- SELECT 
+			CASE 
+				WHEN (A+B<=C OR A+C<=B OR B+C<=A) THEN 'Not A Triangle'
+				WHEN (A=B AND B=C) THEN 'Equilateral'
+				WHEN ((A=B AND B!=C) OR (A=C AND A!=B)) THEN 'Isosceles'
+				ELSE 'Scalene'
+			END
+		  FROM TRIANGLES;
+
+
+_____________________________________________________________________________________________________________________________________________________	
+
+
+>> Suppose I want to classify column_A into big, small and medium based on a specific condition, but ignore the ones that don't fit into the condition,
+   how do I exclude them from the result	
+	
+	- SELECT * FROM (
+					SELECT ..., CASE .... as new_col
+					FROM table)
+	  WHERE new_col IN("big","medium","small");
+	  
+	  
+_____________________________________________________________________________________________________________________________________________________
+
+
+>> https://www.postgresqltutorial.com/postgresql-tutorial/how-to-delete-duplicate-rows-in-postgresql/
+
+
+_____________________________________________________________________________________________________________________________________________________
+
+
+	- SELECT customer.store_id, 
+	         SUM(amount) AS profit,
+             COUNT(customer.customer_id) AS numberofcustomers,
+			 COUNT(inventory.film_id) AS numberoffilms,
+			 SUM(CASE
+					WHEN rating = 'R' THEN 1
+					ELSE 0
+             END) AS numofR_rating
+
+	  FROM payment
+	  INNER JOIN customer ON payment.customer_id = customer.customer_id
+	  INNER JOIN inventory ON inventory.store_id = customer.store_id
+	  INNER JOIN film ON film.film_id = inventory.film_id
+	  GROUP BY customer.store_id;
+	
+	
+_____________________________________________________________________________________________________________________________________________________
