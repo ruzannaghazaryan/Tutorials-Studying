@@ -1,0 +1,154 @@
+
+RegEx (Regular Expressions in Python)
+________________________________________________________________________________________________________
+
+
+
+
+ - regular expression -> a sequence of characters that define a search pattern
+
+
+ - https://regexr.com/
+	> a website where you can check any regular expression
+
+________________________________________________________________________________________________________
+
+
+
+
+ For example:
+	- we have a finite set of strings 
+	  
+	  {'file', 'file1', 'file2'}
+
+	- the above mentioned set can be specified by the pattern: 
+		- 'file(1|2)?'
+			> you match for 'file'
+			> then you match for 1 or 2 zero or one time
+				> ? (question mark) means the condition happening zero or one times
+			> 'file12' doesn't match with the pattern.
+			
+	- if we write RegEx as 'file(1|2)', then 'file' string will be excluded
+	
+	
+	
+________________________________________________________________________________________________________
+
+
+
+ - the specification is not unique = for a given set of strings you can have multiple regular expressions.
+ 
+ 
+	- some other regular expression for the same set of strings: {'file', 'file1', 'file2'}
+	
+		- 'file\d?'
+			> '\d' means you are talking about digits
+			> '?' means that from the preceding character we want only 0 or only 1 occurence (0 or 1 time)
+				
+				> so 'file' can be followed by any kind of digit 0 or 1 time
+		
+ 
+ 
+________________________________________________________________________________________________________
+
+
+
+ - Now, let's say that we have all the digits: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+   (example alphabet set of our language)
+   
+   - rule: each word in your language can have only 3 characters (ex: 012, 234, 653, ...)
+	
+		- '\d\d\d'
+			> will get all those strings that contain three digits
+			> !!! but also those that have more than 3 following each other digits as well (44558, 8754, ...)
+
+
+			
+________________________________________________________________________________________________________
+
+
+
+
+ - USES of Regular Expressions
+
+
+	>> we can check whether a value entered is a valid e-mail address
+		- in this case we have some regular expression which matches your input with some kind of a pattern 
+		  and if that pattern isn't matching with your input, then some warning is raised.
+		  
+	>> look for a pattern appearance in a piece of text; 
+		- for example, check if either the word 'color' or 'colour' appears in a document with just one scan.
+	
+	>> extract specific portions of a text;
+		- for example, extract the postal code of an address.
+		
+	>> replace portions of a text;
+		- for example, change any appearance of 'color' or 'colour' with 'red'.
+		
+	>> split a larger text into smaller pieces;
+		- for example, splitting a text by any appearance of the dot, comma, or newline characters. 
+ 
+
+
+________________________________________________________________________________________________________
+
+
+
+ - re -> the standard Python module for regular expressions (Perl-style regular expressions)
+ - regex -> Python library, POSIX style 
+ 
+ 
+________________________________________________________________________________________________________
+
+
+
+
+ - Understanding the Regular Expression Syntax
+ 
+ 
+	- A regex pattern is a simple sequence of characters. The components of a regex pattern are:
+		> literals (ordinary characters): these characters carry no special meaning and are processed as they are,
+		> metacharacters (special characters): these characters carry a special meaning and are processed in some special way.
+		
+		
+	- 'file\d?'
+		> 'file' - literals
+		> '\d?'  - metacharacters  
+		
+		
+		
+________________________________________________________________________________________________________
+
+
+ - Example
+ 
+ 
+	- file1.xml
+	- file1.txt
+	- file2.txt
+	- file15.xml
+	- file5.docx
+	- file60.txt
+	- file5.txt
+	
+	
+		- give me all those file names which follow a specific pattern:
+		'file', then followed by >=1 digits, then '.txt'
+	
+	
+		> the search pattern is:
+		
+			- 'file\d+.txt'
+				> '\d+' for specifying the digits (one or more digits) 
+				> '+' means there can be multiple repititions (one or more) of the preceding character, which is '\d'.
+				
+				
+	!!! Actually . (dot) is also a metacharacter, but now I want just to use it as a literal without any special meaning,
+	    So, in this case just put '\' before '.'
+			
+			- 'file\d+\.txt'
+				> 'file' literal
+				> '\d' metacharacter to match any digit
+				> '+' metacharacter to match repetition of preceding character
+				> '\.' literal (escaped metacharacter)
+				> 'txt' literal
